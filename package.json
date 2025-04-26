@@ -8,7 +8,19 @@
     "dev": "nodemon --watch src --ext ts --exec ts-node src/server.ts",
     "lint": "eslint 'src/**/*.ts'",
     "prisma-migrate:deploy": "prisma migrate deploy",
-    "prisma-migrate:dev": "prisma migrate dev"
+    "prisma-migrate:dev": "prisma migrate dev",
+    "prepare": "husky install"
+  },
+  "lint-staged": {
+    "src/**/*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
   },
   "keywords": [],
   "author": "",
@@ -29,6 +41,8 @@
     "zod": "^3.24.3"
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.8.0",
+    "@commitlint/config-conventional": "^19.8.0",
     "@types/bcrypt": "^5.0.2",
     "@types/express": "^5.0.1",
     "@types/jsonwebtoken": "^9.0.9",
@@ -36,7 +50,9 @@
     "dotenv": "^16.5.0",
     "eslint": "^9.25.1",
     "express": "^5.1.0",
+    "husky": "^8.0.3",
     "install": "^0.13.0",
+    "lint-staged": "^15.5.1",
     "nodemon": "^3.1.10",
     "npm": "^10.9.2",
     "prettier": "^3.5.3",
