@@ -24,6 +24,28 @@ model User {
   image_url String?
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  phrasesUrgency PhraseUrgency[] @relation("PhraseUrgency")
 
   @@map("users")
+}
+
+model Phrase {
+  id String @id @default(cuid())
+  text String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("phrases")
+}
+
+model PhraseUrgency {
+  id String @id @default(cuid())
+  user_id String
+  phrase_id String
+  is_urgent Boolean @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  user User @relation("PhraseUrgency",fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("phrases_urgency")
 }
