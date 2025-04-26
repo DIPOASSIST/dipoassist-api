@@ -56,7 +56,7 @@ export const createPhrase = async (
   try {
     const data = await createPhraseService(req.body);
 
-    res.status(201).json({ message: 'Phrase created successfully', data });
+    res.status(201).json({ data, message: 'Phrase created successfully' });
   } catch (error) {
     next(error);
   }
