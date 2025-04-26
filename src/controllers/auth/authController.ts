@@ -7,6 +7,7 @@ import {
   getUserByEmailService,
   registerUserService,
 } from '../../services/auth/authService';
+import { loginSchema } from '../../validator/auth/loginValidator';
 
 export const withoutPasswordHandler = (user: User) => {
   const { password, ...userWithoutPassword } = user;
@@ -60,5 +61,39 @@ export const registerUser = async (
     });
   } catch (error) {
     next(error);
+  }
+};
+
+export const loginUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  {
+    try {
+      const data = loginSchema.parse(req.body);
+
+      const user = await getUserByEmailService(data.email);
+
+      if (user && bcrypt.compareSync(data.password, user.password)) {
+        const token = generateToken(user);
+        res.setHeader('Authorization', `Bearer ${token}`);
+        res.status(200).json({
+          id: user.id,
+          token,
+        });
+      }
+
+      if (!user) {
+        res.status(401).json({ message: 'Invalid email or password' });
+        return;
+      }
+
+      if (!bcrypt.compareSync(data.password, user.password)) {
+        res.status(401).json({ message: 'Invalid password' });
+      }
+    } catch (error) {
+      next(error);
+    }
   }
 };

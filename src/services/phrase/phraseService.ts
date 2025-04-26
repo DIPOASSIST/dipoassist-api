@@ -38,6 +38,7 @@ export const createPhraseService = async (data: PhraseType) => {
         text: data.text,
       },
     });
+    return result;
   } catch (error) {
     if (error instanceof Error) {
       throw new Error('Error creating phrase: ' + error.message);
