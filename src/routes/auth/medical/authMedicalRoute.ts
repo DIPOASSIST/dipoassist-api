@@ -6,7 +6,7 @@ import {
 
 const router = Router();
 
-router.post('/register/admin', registerMedical);
-router.post('/login/admin', loginMedical);
+router.post('/register/medical', registerMedical);
+router.post('/login/medical', loginMedical);
 
 export default router;
