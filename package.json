@@ -3,13 +3,14 @@
   "version": "1.0.0",
   "main": "src/server.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "prisma generate && tsc",
     "start": "node dist/server.js",
     "dev": "nodemon --watch src --ext ts --exec ts-node --files src/server.ts",
     "lint": "eslint 'src/**/*.ts'",
     "prisma-migrate:deploy": "prisma migrate deploy",
     "prisma-migrate:dev": "prisma migrate dev",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "postinstall": "prisma generate"
   },
   "lint-staged": {
     "src/**/*.ts": [
