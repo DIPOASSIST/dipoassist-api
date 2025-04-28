@@ -25,8 +25,38 @@ model User {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
   phrasesUrgency PhraseUrgency[] @relation("PhraseUrgency")
+  predict Predict[] @relation("Predict")
 
   @@map("users")
+}
+
+model MedicalPersonal{
+  id String @id @default(cuid())
+  email String @unique
+  username String @unique
+  password String
+  name String
+  role String @default("medical_personal")  
+  phone_number String
+  image_url String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("medical_personal")
+}
+
+model Admin{
+  id String @id @default(cuid())
+  email String @unique
+  username String @unique
+  password String
+  name String
+  role String @default("admin")  
+  image_url String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("admins")
 }
 
 model Phrase {
@@ -48,4 +78,49 @@ model PhraseUrgency {
   user User @relation("PhraseUrgency",fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@map("phrases_urgency")
+}
+
+model Device{
+  id String @id @default(cuid())
+  user_id String
+  medical_id String
+  name String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("devices")
+}
+
+model Predict {
+  id String @id @default(cuid())
+  user_id String
+  emg_signal String
+  predict_phrase String
+  creted_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  user User @relation("Predict", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("predicts")
+}
+
+model ArticleType {
+  id String @id @default(cuid())
+  name String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  article Article[] @relation("ArticleType")
+
+  @@map("article_types")
+}
+
+model Article {
+  id String @id @default(cuid())
+  title String
+  content String
+  type_id String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  articleType ArticleType @relation("ArticleType", fields: [type_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("articles")
 }

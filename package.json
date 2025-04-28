@@ -22,7 +22,6 @@
       "@commitlint/config-conventional"
     ]
   },
-  "type": "module",
   "keywords": [],
   "author": "",
   "license": "ISC",
