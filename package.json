@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
-    "dev": "nodemon --watch src --ext ts --exec ts-node src/server.ts",
+    "dev": "nodemon --watch src --ext ts --exec ts-node --files src/server.ts",
     "lint": "eslint 'src/**/*.ts'",
     "prisma-migrate:deploy": "prisma migrate deploy",
     "prisma-migrate:dev": "prisma migrate dev",
@@ -22,6 +22,7 @@
       "@commitlint/config-conventional"
     ]
   },
+  "type": "module",
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -47,8 +48,11 @@
     "@types/express": "^5.0.1",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^22.15.2",
+    "@typescript-eslint/eslint-plugin": "^8.31.0",
+    "@typescript-eslint/parser": "^8.31.0",
     "dotenv": "^16.5.0",
     "eslint": "^9.25.1",
+    "eslint-plugin-prettier": "^5.2.6",
     "express": "^5.1.0",
     "husky": "^8.0.3",
     "install": "^0.13.0",

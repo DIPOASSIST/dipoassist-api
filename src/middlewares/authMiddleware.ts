@@ -2,12 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { User } from '../types/auth/user';
 
-interface AuthRequest extends Request {
-  user?: Omit<User, 'password'>;
-}
-
 export const authMiddleware = (
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction,
 ): void => {
@@ -35,10 +31,7 @@ export const authMiddleware = (
       throw new Error('JWT secret is not defined in environment variables');
     }
 
-    const decodedToken = jwt.verify(tokenWithoutBearer, secret) as Omit<
-      User,
-      'password'
-    >;
+    const decodedToken = jwt.verify(tokenWithoutBearer, secret) as User;
 
     req.user = decodedToken;
 
@@ -55,7 +48,7 @@ export const authMiddleware = (
 };
 
 export const adminMiddleware = (
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction,
 ) => {
