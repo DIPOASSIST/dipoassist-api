@@ -2,11 +2,10 @@
   "name": "dipoassist-api",
   "version": "1.0.0",
   "main": "src/server.ts",
-  "type": "module",
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
-    "dev": "nodemon --watch src --ext ts --exec ts-node src/server.ts",
+    "dev": "nodemon --watch src --ext ts --exec ts-node --files src/server.ts",
     "lint": "eslint 'src/**/*.ts'",
     "prisma-migrate:deploy": "prisma migrate deploy",
     "prisma-migrate:dev": "prisma migrate dev",
@@ -23,6 +22,7 @@
       "@commitlint/config-conventional"
     ]
   },
+  "type": "module",
   "keywords": [],
   "author": "",
   "license": "ISC",
