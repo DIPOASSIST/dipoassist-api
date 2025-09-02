@@ -8,6 +8,7 @@ import {
   registerMedicalService,
 } from '../../../services/auth/medical/authMedicalService';
 import { loginSchema } from '../../../validator/auth/loginValidator';
+import { sendError } from '../../../helper/response';
 
 export const withoutPasswordHandler = (medical: Medical) => {
   const { password, ...medicalWithoutPassword } = medical;
@@ -38,8 +39,7 @@ export const registerMedical = async (
 
     const existingMedical = await getMedicalByEmailService(data.email);
     if (existingMedical) {
-      res.status(409).json({ message: 'Email is already registered' });
-      return; // important to stop the execution
+      return sendError(res, 409, 'Email is already registered');
     }
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
@@ -73,15 +73,13 @@ export const loginMedical = async (
     const medical = await getMedicalByEmailService(data.email);
 
     if (!medical) {
-      res.status(401).json({ message: 'Invalid email or password' });
-      return;
+      return sendError(res, 401, 'Invalid email or password');
     }
 
     const passwordMatch = await bcrypt.compare(data.password, medical.password);
 
     if (!passwordMatch) {
-      res.status(401).json({ message: 'Invalid password' });
-      return;
+      return sendError(res, 401, 'Invalid password');
     }
 
     const token = generateToken(medical);

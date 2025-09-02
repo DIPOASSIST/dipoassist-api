@@ -8,6 +8,7 @@ import {
   registerAdminService,
 } from '../../../services/auth/admin/authAdminService';
 import { loginSchema } from '../../../validator/auth/loginValidator';
+import { sendError } from '../../../helper/response';
 
 export const withoutPasswordHandler = (admin: Admin) => {
   const { password, ...adminWithoutPassword } = admin;
@@ -86,12 +87,11 @@ export const loginAdmin = async (
       }
 
       if (!admin) {
-        res.status(401).json({ message: 'Invalid email or password' });
-        return;
+        return sendError(res, 401, 'Invalid email or password');
       }
 
       if (!bcrypt.compareSync(data.password, admin.password)) {
-        res.status(401).json({ message: 'Invalid password' });
+        return sendError(res, 401, 'Invalid password');
       }
     } catch (error) {
       next(error);
