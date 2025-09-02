@@ -1,7 +1,8 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from 'express';
 
 export interface AppError extends Error {
   status?: number;
+  details?: unknown;
 }
 
 export const errorHandler = (
@@ -11,7 +12,15 @@ export const errorHandler = (
   next: NextFunction,
 ) => {
   console.error(err);
-  res.status(err.status || 500).json({
-    message: err.message || "Internal Server Error",
+
+  const statusCode = err.status || 500;
+
+  res.status(statusCode).json({
+    meta: {
+      status: 'error',
+      statusCode,
+      message: err.message || 'Internal Server Error',
+    },
+    data: err.details || null,
   });
 };

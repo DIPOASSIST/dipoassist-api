@@ -6,6 +6,7 @@ import {
   getPhraseUrgencyByIdService,
   updatePhraseUrgencyService,
 } from '../../services/phrase/phraseUrgencyService';
+import { sendError, sendSuccess } from '../../helper/response';
 
 export const getAllPhraseUrgency = async (
   req: Request,
@@ -15,10 +16,7 @@ export const getAllPhraseUrgency = async (
   try {
     const data = await getAllPhraseUrgencyService();
 
-    res.status(200).json({
-      message: 'Phrases urgency fetched successfully',
-      data,
-    });
+    return sendSuccess(res, 200, 'Phrases urgency fetched successfully', data);
   } catch (error) {
     next(error);
   }
@@ -33,16 +31,10 @@ export const getPhraseUrgencyById = async (
     const data = await getPhraseUrgencyByIdService(req.params.id);
 
     if (!data) {
-      res.status(404).json({
-        message: 'Phrase urgency not found',
-      });
-      return;
+      return sendError(res, 404, 'Phrase urgency not found');
     }
 
-    res.status(200).json({
-      message: 'Phrase urgency fetched successfully',
-      data,
-    });
+    return sendSuccess(res, 200, 'Phrase urgency fetched successfully', data);
   } catch (error) {
     next(error);
   }
@@ -54,12 +46,9 @@ export const createPhraseUrgency = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const userId = req.user.id;
     const data = await createPhraseUrgencyService(req.body);
 
-    res
-      .status(201)
-      .json({ data, message: 'Phrase urgency created successfully' });
+    return sendSuccess(res, 201, 'Phrase urgency created successfully', data);
   } catch (error) {
     next(error);
   }
@@ -73,9 +62,7 @@ export const updatePhraseUrgency = async (
   try {
     const data = await updatePhraseUrgencyService(req.params.id, req.body);
 
-    res
-      .status(200)
-      .json({ data, message: 'Phrase urgency updated successfully' });
+    return sendSuccess(res, 200, 'Phrase urgency updated successfully', data);
   } catch (error) {
     next(error);
   }
@@ -89,9 +76,7 @@ export const deletePhraseUrgency = async (
   try {
     const data = await deletePhraseUrgencyService(req.params.id);
 
-    res
-      .status(200)
-      .json({ data, message: 'Phrase urgency deleted successfully' });
+    return sendSuccess(res, 200, 'Phrase urgency deleted successfully', data);
   } catch (error) {
     next(error);
   }
