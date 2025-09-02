@@ -11,7 +11,12 @@ export const authMiddleware = (
 
   if (!token || !token.startsWith('Bearer ')) {
     res.status(401).json({
-      error: { message: 'Unauthorized: Missing or invalid token format' },
+      meta: {
+        status: 'error',
+        statusCode: 401,
+        message: 'Unauthorized: Missing or invalid token format',
+      },
+      data: null,
     });
     return;
   }
@@ -20,7 +25,12 @@ export const authMiddleware = (
 
   if (!tokenWithoutBearer) {
     res.status(401).json({
-      error: { message: 'Unauthorized: Missing token value' },
+      meta: {
+        status: 'error',
+        statusCode: 401,
+        message: 'Unauthorized: Missing token value',
+      },
+      data: null,
     });
     return;
   }
@@ -38,8 +48,12 @@ export const authMiddleware = (
     return next();
   } catch (error) {
     res.status(401).json({
-      error: {
+      meta: {
+        status: 'error',
+        statusCode: 401,
         message: 'Unauthorized: Token verification failed',
+      },
+      data: {
         details: (error as Error).message,
       },
     });
@@ -53,10 +67,16 @@ export const adminMiddleware = (
   next: NextFunction,
 ) => {
   if (!req.user || req.user.role !== 'admin') {
-    res
-      .status(403)
-      .json({ error: { message: 'Forbidden: Admin access required' } });
+    res.status(403).json({
+      meta: {
+        status: 'error',
+        statusCode: 403,
+        message: 'Forbidden: Admin access required',
+      },
+      data: null,
+    });
     return;
   }
+
   next();
 };

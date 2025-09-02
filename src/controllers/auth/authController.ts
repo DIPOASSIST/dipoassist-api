@@ -8,6 +8,7 @@ import {
   registerUserService,
 } from '../../services/auth/authService';
 import { loginSchema } from '../../validator/auth/loginValidator';
+import { sendError, sendSuccess } from '../../helper/response';
 
 export const withoutPasswordHandler = (user: User) => {
   const { password, ...userWithoutPassword } = user;
@@ -39,8 +40,9 @@ export const registerUser = async (
 
     // check if user already exists
     const existingUser = await getUserByEmailService(data.email);
+
     if (existingUser) {
-      res.status(409).json({ message: 'Email is already registered' });
+      return sendError(res, 409, 'Email is already registered');
     }
 
     // hash the password
@@ -54,8 +56,7 @@ export const registerUser = async (
     const token = generateToken(newUser);
     const userWithoutPassword = withoutPasswordHandler(newUser);
 
-    res.status(201).json({
-      message: 'User successfully registered',
+    return sendSuccess(res, 201, 'User successfully registered', {
       user: userWithoutPassword,
       token,
     });
@@ -85,12 +86,11 @@ export const loginUser = async (
       }
 
       if (!user) {
-        res.status(401).json({ message: 'Invalid email or password' });
-        return;
+        return sendError(res, 404, 'User not found');
       }
 
       if (!bcrypt.compareSync(data.password, user.password)) {
-        res.status(401).json({ message: 'Invalid password' });
+        return sendError(res, 401, 'Invalid password');
       }
     } catch (error) {
       next(error);

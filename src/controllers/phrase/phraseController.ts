@@ -6,6 +6,7 @@ import {
   getPhraseByIdService,
   updatePhraseService,
 } from '../../services/phrase/phraseService';
+import { sendError, sendSuccess } from '../../helper/response';
 
 export const getAllPhrases = async (
   req: Request,
@@ -15,10 +16,7 @@ export const getAllPhrases = async (
   try {
     const data = await getAllPhrasesService();
 
-    res.status(200).json({
-      message: 'Phrases fetched successfully',
-      data,
-    });
+    return sendSuccess(res, 200, 'Phrases fetched successfully', data);
   } catch (error) {
     next(error);
   }
@@ -33,16 +31,10 @@ export const getPhraseById = async (
     const data = await getPhraseByIdService(req.params.id);
 
     if (!data) {
-      res.status(404).json({
-        message: 'Phrase not found',
-      });
-      return;
+      return sendError(res, 404, 'Phrase not found');
     }
 
-    res.status(200).json({
-      message: 'Phrase fetched successfully',
-      data,
-    });
+    return sendSuccess(res, 200, 'Phrase fetched successfully', data);
   } catch (error) {
     next(error);
   }
@@ -56,7 +48,7 @@ export const createPhrase = async (
   try {
     const data = await createPhraseService(req.body);
 
-    res.status(201).json({ data, message: 'Phrase created successfully' });
+    return sendSuccess(res, 201, 'Phrase created successfully', data);
   } catch (error) {
     next(error);
   }
@@ -72,13 +64,10 @@ export const updatePhrase = async (
       const data = await updatePhraseService(req.params.id, req.body);
 
       if (!data) {
-        res.status(404).json({
-          message: 'Phrase not found',
-        });
-        return;
+        return sendError(res, 404, 'Phrase not found');
       }
 
-      res.status(200).json({ message: 'Phrase updated successfully', data });
+      return sendSuccess(res, 200, 'Phrase updated successfully', data);
     } catch (error) {
       next(error);
     }
@@ -94,13 +83,10 @@ export const deletePhrase = async (
     const data = await deletePhraseService(req.params.id);
 
     if (!data) {
-      res.status(404).json({
-        message: 'Phrase not found',
-      });
-      return;
+      return sendError(res, 404, 'Phrase not found');
     }
 
-    res.status(200).json({ message: 'Phrase deleted successfully', data });
+    return sendSuccess(res, 200, 'Phrase deleted successfully', data);
   } catch (error) {
     next(error);
   }
