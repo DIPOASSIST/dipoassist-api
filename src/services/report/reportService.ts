@@ -5,7 +5,16 @@ const prisma = new PrismaClient();
 
 export const getAllReportsService = async () => {
   try {
-    const result = await prisma.report.findMany();
+    const result = await prisma.report.findMany({
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
     return result;
   } catch (error) {
     if (error instanceof Error) {
