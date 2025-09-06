@@ -14,7 +14,8 @@ export const getAllPhrases = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const data = await getAllPhrasesService();
+    const userId = req.user?.id;
+    const data = await getAllPhrasesService(userId);
 
     return sendSuccess(res, 200, 'Phrases fetched successfully', data);
   } catch (error) {

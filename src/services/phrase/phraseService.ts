@@ -4,10 +4,25 @@ import { PhraseType } from '../../validator/phrase/phraseValidator';
 
 const prisma = new PrismaClient();
 
-export const getAllPhrasesService = async () => {
+export const getAllPhrasesService = async (userId: string) => {
   try {
-    const result = await prisma.phrase.findMany();
-    return result;
+    const phrases = await prisma.phrase.findMany({
+      orderBy: { created_at: 'desc' },
+      include: {
+        urgencies: {
+          where: { user_id: userId },
+          select: { is_urgent: true },
+        },
+      },
+    });
+
+    return phrases.map((p) => ({
+      id: p.id,
+      text: p.text,
+      created_at: p.created_at,
+      updated_at: p.updated_at,
+      is_urgent: p.urgencies[0]?.is_urgent ?? null,
+    }));
   } catch (error) {
     if (error instanceof Error) {
       throw new Error('Error fetching phrases: ' + error.message);
