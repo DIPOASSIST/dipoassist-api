@@ -41,7 +41,7 @@ export const adminMiddleware = (
   res: Response,
   next: NextFunction,
 ) => {
-  if (!req.user || req.user.role !== 'admin') {
+  if (!req.user || req.user.role !== 'ADMIN') {
     return sendError(res, 403, 'Forbidden: Admin access required');
   }
 
