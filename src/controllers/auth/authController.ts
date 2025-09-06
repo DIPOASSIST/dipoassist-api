@@ -5,9 +5,11 @@ import bcrypt from 'bcrypt';
 import { registerSchema } from '../../validator/auth/registerValidator';
 import {
   getUserByEmailService,
+  getUserByIdService,
   registerUserService,
 } from '../../services/auth/authService';
 import { loginSchema } from '../../validator/auth/loginValidator';
+import { sendError, sendSuccess } from '../../helper/response';
 
 export const withoutPasswordHandler = (user: User) => {
   const { password, ...userWithoutPassword } = user;
@@ -39,8 +41,9 @@ export const registerUser = async (
 
     // check if user already exists
     const existingUser = await getUserByEmailService(data.email);
+
     if (existingUser) {
-      res.status(409).json({ message: 'Email is already registered' });
+      return sendError(res, 409, 'Email is already registered');
     }
 
     // hash the password
@@ -54,8 +57,7 @@ export const registerUser = async (
     const token = generateToken(newUser);
     const userWithoutPassword = withoutPasswordHandler(newUser);
 
-    res.status(201).json({
-      message: 'User successfully registered',
+    return sendSuccess(res, 201, 'User successfully registered', {
       user: userWithoutPassword,
       token,
     });
@@ -69,31 +71,99 @@ export const loginUser = async (
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
-  {
-    try {
-      const data = loginSchema.parse(req.body);
+  try {
+    const data = loginSchema.parse(req.body);
 
-      const user = await getUserByEmailService(data.email);
+    const user = await getUserByEmailService(data.email);
 
-      if (user && bcrypt.compareSync(data.password, user.password)) {
-        const token = generateToken(user);
-        res.setHeader('Authorization', `Bearer ${token}`);
-        res.status(200).json({
-          id: user.id,
-          token,
-        });
-      }
-
-      if (!user) {
-        res.status(401).json({ message: 'Invalid email or password' });
-        return;
-      }
-
-      if (!bcrypt.compareSync(data.password, user.password)) {
-        res.status(401).json({ message: 'Invalid password' });
-      }
-    } catch (error) {
-      next(error);
+    if (!user) {
+      return sendError(res, 404, 'User not found');
     }
+
+    if (user.role !== 'USER') {
+      return sendError(res, 403, 'Access denied: Only user can login here');
+    }
+
+    const isPasswordValid = bcrypt.compareSync(data.password, user.password);
+
+    if (!isPasswordValid) {
+      return sendError(res, 401, 'Invalid password');
+    }
+
+    const token = generateToken(user);
+
+    res.setHeader('Authorization', `Bearer ${token}`);
+    res.status(200).json({
+      id: user.id,
+      token,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const loginUserFromWeb = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const data = loginSchema.parse(req.body);
+
+    const user = await getUserByEmailService(data.email);
+
+    if (!user) {
+      return sendError(res, 404, 'User not found');
+    }
+
+    if (user.role !== 'ADMIN' && user.role !== 'NAKES') {
+      return sendError(
+        res,
+        403,
+        'Access denied: Only admin and nakes can login from web',
+      );
+    }
+
+    const isPasswordValid = bcrypt.compareSync(data.password, user.password);
+
+    if (!isPasswordValid) {
+      return sendError(res, 401, 'Invalid password');
+    }
+
+    const token = generateToken(user);
+
+    res.setHeader('Authorization', `Bearer ${token}`);
+    res.status(200).json({
+      id: user.id,
+      token,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAuth = async (
+  req: Request & { user?: User },
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ error: 'User not authenticated' });
+      return;
+    }
+
+    const user = await getUserByIdService(req.user.id);
+
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    const { password, ...userWithoutPassword } = user;
+
+    res.status(200).json(userWithoutPassword);
+  } catch (error) {
+    next(error);
   }
 };

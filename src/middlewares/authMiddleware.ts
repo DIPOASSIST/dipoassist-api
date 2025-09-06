@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { User } from '../types/auth/user';
+import { sendError } from '../helper/response';
 
 export const authMiddleware = (
   req: Request,
@@ -10,19 +11,13 @@ export const authMiddleware = (
   const token = req.headers.authorization;
 
   if (!token || !token.startsWith('Bearer ')) {
-    res.status(401).json({
-      error: { message: 'Unauthorized: Missing or invalid token format' },
-    });
-    return;
+    return sendError(res, 401, 'Unauthorized: Missing or invalid token format');
   }
 
   const tokenWithoutBearer = token.split('Bearer ')[1];
 
   if (!tokenWithoutBearer) {
-    res.status(401).json({
-      error: { message: 'Unauthorized: Missing token value' },
-    });
-    return;
+    return sendError(res, 401, 'Unauthorized: Missing token value');
   }
 
   try {
@@ -37,13 +32,7 @@ export const authMiddleware = (
 
     return next();
   } catch (error) {
-    res.status(401).json({
-      error: {
-        message: 'Unauthorized: Token verification failed',
-        details: (error as Error).message,
-      },
-    });
-    return;
+    return sendError(res, 401, 'Unauthorized: Invalid or expired token');
   }
 };
 
@@ -52,11 +41,9 @@ export const adminMiddleware = (
   res: Response,
   next: NextFunction,
 ) => {
-  if (!req.user || req.user.role !== 'admin') {
-    res
-      .status(403)
-      .json({ error: { message: 'Forbidden: Admin access required' } });
-    return;
+  if (!req.user || req.user.role !== 'ADMIN') {
+    return sendError(res, 403, 'Forbidden: Admin access required');
   }
+
   next();
 };

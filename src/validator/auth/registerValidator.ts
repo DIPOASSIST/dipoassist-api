@@ -14,7 +14,7 @@ export const registerSchema = z.object({
     .string()
     .min(3, 'Name must be at least 3 characters long')
     .nonempty('Name is required'),
-  role: z.enum(['admin', 'user', 'medical_personal']).default('user'),
+  role: z.enum(['ADMIN', 'USER', 'NAKES']).default('USER'),
   phone_number: z
     .string()
     .min(10, 'Phone number must be at least 10 digits long'),

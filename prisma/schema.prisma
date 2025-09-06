@@ -9,56 +9,38 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  ADMIN
+  NAKES
+  USER
 }
 
 model User {
-  id String @id @default(cuid())
-  email String @unique
-  username String @unique
+  id String    @id @default(cuid())
+  email String    @unique
+  username String    @unique
   password String
   name String
-  role String @default("user")  
+  role Role @default(USER)  // admin | nakes | user
   phone_number String
   image_url String?
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+
+  nakes_id String?
+  nakes User? @relation("NakesPatients", fields: [nakes_id], references: [id])
+  patients User[] @relation("NakesPatients")
+
   phrasesUrgency PhraseUrgency[] @relation("PhraseUrgency")
   predict Predict[] @relation("Predict")
 
   @@map("users")
 }
 
-model MedicalPersonal{
-  id String @id @default(cuid())
-  email String @unique
-  username String @unique
-  password String
-  name String
-  role String @default("medical_personal")  
-  phone_number String
-  image_url String?
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  @@map("medical_personal")
-}
-
-model Admin{
-  id String @id @default(cuid())
-  email String @unique
-  username String @unique
-  password String
-  name String
-  role String @default("admin")  
-  image_url String?
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  @@map("admins")
-}
 
 model Phrase {
   id String @id @default(cuid())
