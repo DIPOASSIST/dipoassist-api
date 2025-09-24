@@ -65,10 +65,6 @@ export const getUserRoleUser = async (
   try {
     const data = await getUserRoleUserService();
 
-    if (!data) {
-      return sendError(res, 404, 'User not found');
-    }
-
     return sendSuccess(res, 200, 'User fetched successfully', data);
   } catch (error) {
     return next(error);

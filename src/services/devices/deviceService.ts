@@ -5,8 +5,23 @@ const prisma = new PrismaClient();
 
 export const getAllDeviceService = async () => {
   try {
-    const device = await prisma.device.findMany();
-    return device;
+    const devices = await prisma.device.findMany({
+      include: {
+        patient: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        nakes: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+    return devices;
   } catch (error) {
     if (error instanceof Error) {
       throw new Error('Error fetching devices: ' + error.message);

@@ -6,6 +6,8 @@ import phraseRoutes from './routes/phrase/phraseRoute';
 import phraseUrgencyRoutes from './routes/phrase/phraseUrgencyRoute';
 import userRoutes from './routes/user/userRoutes';
 import reportRoutes from './routes/report/reportRoute';
+import deviceRoutes from './routes/devices/deviceRoute';
+import wsRoutes from './routes/socket/wsRoute';
 
 const app = express();
 
@@ -25,6 +27,8 @@ app.use('/api/phrases', phraseRoutes);
 app.use('/api/phrase-urgency', phraseUrgencyRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/devices', deviceRoutes);
+app.use('/api/ws', wsRoutes);
 
 // Global error handler
 app.use(errorHandler);

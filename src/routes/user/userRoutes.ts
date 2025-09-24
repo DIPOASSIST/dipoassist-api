@@ -14,8 +14,8 @@ const router = Router();
 
 router.use(authMiddleware);
 router.get('/', adminMiddleware, getAllUser);
+router.get('/medical', getUserNakes);
+router.get('/patients', getUserRoleUser);
 router.get('/:id', adminMiddleware, getDetailUser);
-router.get('/nakes', getUserNakes);
-router.get('/user', getUserRoleUser);
 
 export default router;

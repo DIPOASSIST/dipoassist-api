@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Role } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -34,7 +34,7 @@ export const getUserNakesService = async () => {
   try {
     const user = await prisma.user.findMany({
       where: {
-        role: 'NAKES',
+        role: Role.NAKES,
       },
     });
 
@@ -51,7 +51,7 @@ export const getUserRoleUserService = async () => {
   try {
     const user = await prisma.user.findMany({
       where: {
-        role: 'USER',
+        role: Role.USER,
       },
     });
 
