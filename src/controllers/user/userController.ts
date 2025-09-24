@@ -3,6 +3,7 @@ import { sendError, sendSuccess } from '../../helper/response';
 import {
   getAllUserService,
   getDetailUserService,
+  getUserByNakesService,
   getUserNakesService,
   getUserRoleUserService,
 } from '../../services/user/userService';
@@ -64,6 +65,20 @@ export const getUserRoleUser = async (
 ): Promise<void> => {
   try {
     const data = await getUserRoleUserService();
+
+    return sendSuccess(res, 200, 'User fetched successfully', data);
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const getUserByNakes = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const data = await getUserByNakesService(req.user.id);
 
     return sendSuccess(res, 200, 'User fetched successfully', data);
   } catch (error) {

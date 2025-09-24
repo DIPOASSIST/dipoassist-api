@@ -63,3 +63,20 @@ export const getUserRoleUserService = async () => {
     throw new Error('Unknown error fetching user');
   }
 };
+
+export const getUserByNakesService = async (nakesId: string) => {
+  try {
+    const user = await prisma.user.findMany({
+      where: {
+        nakes_id: nakesId,
+      },
+    });
+
+    return user;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error('Error fetching user: ' + error.message);
+    }
+    throw new Error('Unknown error fetching user');
+  }
+};

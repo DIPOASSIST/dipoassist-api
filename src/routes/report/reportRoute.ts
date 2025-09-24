@@ -4,11 +4,13 @@ import {
   deleteReport,
   getAllReport,
   getAllReportByUser,
+  getReportByNakes,
   updateReport,
 } from '../../controllers/report/reportController';
 import {
   adminMiddleware,
   authMiddleware,
+  nakesMiddleware,
 } from '../../middlewares/authMiddleware';
 
 const router = Router();
@@ -19,5 +21,6 @@ router.get('/user', getAllReportByUser);
 router.post('/', createReport);
 router.put('/:id', updateReport);
 router.delete('/:id', deleteReport);
+router.get('/medical', nakesMiddleware, getReportByNakes);
 
 export default router;

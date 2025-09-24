@@ -47,3 +47,15 @@ export const adminMiddleware = (
 
   next();
 };
+
+export const nakesMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  if (!req.user || req.user.role !== 'NAKES') {
+    return sendError(res, 403, 'Forbidden: Nakes access required');
+  }
+
+  next();
+};

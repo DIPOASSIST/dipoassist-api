@@ -99,3 +99,30 @@ export const deleteReportService = async (reportId: string) => {
     throw new Error('Unknown error deleting report');
   }
 };
+
+export const getReportByNakesService = async (nakesId: string) => {
+  try {
+    const result = await prisma.report.findMany({
+      where: {
+        user: {
+          nakes_id: nakesId,
+        },
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    return result;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error('Error fetching reports by nakes ID: ' + error.message);
+    }
+    throw new Error('Unknown error fetching reports by nakes ID');
+  }
+};

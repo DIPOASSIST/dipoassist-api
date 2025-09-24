@@ -5,6 +5,7 @@ import {
   getAllReportsByUserService,
   getAllReportsService,
   getDetailReportService,
+  getReportByNakesService,
   updateReportService,
 } from '../../services/report/reportService';
 import { sendSuccess } from '../../helper/response';
@@ -96,6 +97,21 @@ export const deleteReport = async (
     const reportId = req.params.id;
     await deleteReportService(reportId);
     return sendSuccess(res, 200, 'Report deleted successfully');
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getReportByNakes = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const nakesId = req.user.id;
+    const data = await getReportByNakesService(nakesId);
+
+    return sendSuccess(res, 200, 'Reports fetched successfully', data);
   } catch (error) {
     next(error);
   }
