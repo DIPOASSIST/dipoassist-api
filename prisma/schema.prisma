@@ -37,28 +37,34 @@ model User {
 
   phrasesUrgency PhraseUrgency[] @relation("PhraseUrgency")
   predict Predict[] @relation("Predict")
+  reports Report[] @relation("Report")
+  devicesPatient Device[] @relation("PatientDevices")
+  devicesNakes Device[] @relation("MedicalDevices")
 
   @@map("users")
 }
 
-
 model Phrase {
-  id String @id @default(cuid())
-  text String
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id         String          @id @default(cuid())
+  text       String
+  created_at DateTime        @default(now())
+  updated_at DateTime        @updatedAt
+
+  urgencies  PhraseUrgency[] @relation("PhraseToUrgency")
 
   @@map("phrases")
 }
 
 model PhraseUrgency {
-  id String @id @default(cuid())
-  user_id String
-  phrase_id String
-  is_urgent Boolean @default(false)
+  id         String   @id @default(cuid())
+  user_id    String
+  phrase_id  String
+  is_urgent  Boolean  @default(false)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-  user User @relation("PhraseUrgency",fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  user   User    @relation("PhraseUrgency", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  phrase Phrase  @relation("PhraseToUrgency", fields: [phrase_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@map("phrases_urgency")
 }
@@ -70,6 +76,9 @@ model Device{
   name String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+
+  patient User @relation("PatientDevices", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  nakes   User @relation("MedicalDevices", fields: [medical_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@map("devices")
 }
@@ -106,4 +115,16 @@ model Article {
   articleType ArticleType @relation("ArticleType", fields: [type_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@map("articles")
+}
+
+model Report{
+  id String @id @default(cuid())
+  user_id String
+  title String
+  content String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  user User @relation("Report", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("reports")
 }

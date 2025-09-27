@@ -46,7 +46,14 @@ export const createPhraseUrgency = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const data = await createPhraseUrgencyService(req.body);
+    const userId = req.user.id;
+    const { phrase_id, is_urgent } = req.body;
+
+    const data = await createPhraseUrgencyService({
+      phrase_id,
+      is_urgent,
+      user_id: userId,
+    });
 
     return sendSuccess(res, 201, 'Phrase urgency created successfully', data);
   } catch (error) {
