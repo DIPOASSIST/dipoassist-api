@@ -28,7 +28,8 @@
   "license": "ISC",
   "description": "",
   "prisma": {
-    "schema": "prisma/schema.prisma"
+    "schema": "prisma/schema.prisma",
+    "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.6.0",
