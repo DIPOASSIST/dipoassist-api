@@ -8,6 +8,7 @@ import userRoutes from './routes/user/userRoutes';
 import reportRoutes from './routes/report/reportRoute';
 import deviceRoutes from './routes/devices/deviceRoute';
 import wsRoutes from './routes/socket/wsRoute';
+import scheduleRoutes from './routes/schedule/scheduleRoute';
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/devices', deviceRoutes);
 app.use('/api/ws', wsRoutes);
+app.use('/api/schedules', scheduleRoutes);
 
 // Global error handler
 app.use(errorHandler);

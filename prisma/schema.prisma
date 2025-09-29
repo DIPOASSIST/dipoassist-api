@@ -40,6 +40,8 @@ model User {
   reports Report[] @relation("Report")
   devicesPatient Device[] @relation("PatientDevices")
   devicesNakes Device[] @relation("MedicalDevices")
+  schedulesPatient Schedule[] @relation("PatientSchedules")
+  schedulesNakes Schedule[] @relation("MedicalSchedules")
 
   @@map("users")
 }
@@ -127,4 +129,18 @@ model Report{
   user User @relation("Report", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@map("reports")
+}
+
+model Schedule{
+  id String @id @default(cuid())
+  medical_id String
+  patient_id String
+  title String
+  notes String?
+  schedule_date DateTime
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  patient User @relation("PatientSchedules", fields: [patient_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  nakes   User @relation("MedicalSchedules", fields: [medical_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
