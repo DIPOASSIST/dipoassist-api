@@ -25,7 +25,7 @@ app.use(express.json());
 
 // Default route
 app.get('/', (req: Request, res: Response) => {
-  sendSuccess(res, 200, 'Welcome to the DipoAssist API v1!', null);
+  sendSuccess(res, 200, 'Welcome to the DipoAssist API!', null);
 });
 
 // Routes
