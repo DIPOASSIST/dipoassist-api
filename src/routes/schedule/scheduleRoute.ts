@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import {
+  createSchedule,
   deleteSchedule,
   getAllScheduleNakes,
   getAllSchedulePatient,
@@ -13,6 +14,7 @@ import {
 const router = Router();
 
 router.use(authMiddleware);
+router.post('/', nakesMiddleware, createSchedule);
 router.get('/', getAllSchedulePatient);
 router.get('/nakes', nakesMiddleware, getAllScheduleNakes);
 router.put('/:id', nakesMiddleware, updateSchedule);
