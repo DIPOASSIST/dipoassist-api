@@ -25,6 +25,14 @@ export const getAllSchedulesNakesService = async (userId: string) => {
       where: {
         medical_id: userId,
       },
+      include: {
+        patient: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
     return result;
   } catch (error) {
