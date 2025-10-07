@@ -1,12 +1,16 @@
 import { NextFunction, Request, Response } from 'express';
 import { sendError, sendSuccess } from '../../helper/response';
 import {
+  createUserService,
   getAllUserService,
   getDetailUserService,
   getUserByNakesService,
   getUserNakesService,
   getUserRoleUserService,
 } from '../../services/user/userService';
+import bcrypt from 'bcrypt';
+import { getUserByEmailService } from '../../services/auth/authService';
+import { withoutPasswordHandler } from '../auth/authController';
 
 export const getAllUser = async (
   req: Request,
@@ -81,6 +85,40 @@ export const getUserByNakes = async (
     const data = await getUserByNakesService(req.user.id);
 
     return sendSuccess(res, 200, 'User fetched successfully', data);
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const createUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    // validate request body against the schema
+    const data = req.body;
+
+    // check if user already exists
+    const existingUser = await getUserByEmailService(data.email);
+
+    if (existingUser) {
+      return sendError(res, 409, 'Email is already registered');
+    }
+
+    // hash the password
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+
+    const newUser = await createUserService({
+      ...data,
+      password: hashedPassword,
+    });
+
+    const userWithoutPassword = withoutPasswordHandler(newUser);
+
+    return sendSuccess(res, 201, 'User successfully registered', {
+      user: userWithoutPassword,
+    });
   } catch (error) {
     return next(error);
   }
