@@ -1,4 +1,6 @@
 import { PrismaClient, Role } from '@prisma/client';
+import { CreateUserType } from '../../validator/user/createUserValidator';
+import { v4 as uuidv4 } from 'uuid';
 
 const prisma = new PrismaClient();
 
@@ -78,5 +80,28 @@ export const getUserByNakesService = async (nakesId: string) => {
       throw new Error('Error fetching user: ' + error.message);
     }
     throw new Error('Unknown error fetching user');
+  }
+};
+
+export const createUserService = async (data: CreateUserType) => {
+  try {
+    const result = await prisma.user.create({
+      data: {
+        id: uuidv4(),
+        nakes_id: data.nakes_id || null,
+        role: data.role,
+        name: data.name,
+        username: data.username,
+        email: data.email,
+        password: data.password,
+        phone_number: data.phone_number,
+      },
+    });
+    return result;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error('Error creating user: ' + error.message);
+    }
+    throw new Error('Unknown error creating user');
   }
 };

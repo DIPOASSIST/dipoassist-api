@@ -14,8 +14,6 @@ export const registerUserService = async (data: RegisterType) => {
         email: data.email,
         password: data.password,
         phone_number: data.phone_number,
-        nakes_id: data.nakes_id || null,
-        role: data.role,
       },
     });
     return result;

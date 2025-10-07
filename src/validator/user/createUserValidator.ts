@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
-export const registerSchema = z.object({
+export const createUserSchema = z.object({
+  nakes_id: z.string().uuid('Invalid nakes ID').optional(),
   email: z.string().email().nonempty('Email is required'),
   password: z
     .string()
@@ -20,4 +21,4 @@ export const registerSchema = z.object({
     .min(10, 'Phone number must be at least 10 digits long'),
 });
 
-export type RegisterType = z.infer<typeof registerSchema>;
+export type CreateUserType = z.infer<typeof createUserSchema>;
