@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 export const registerSchema = z.object({
+  nakes_id: z.string().uuid().optional().nullable(),
   email: z.string().email().nonempty('Email is required'),
   password: z
     .string()
