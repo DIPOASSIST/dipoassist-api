@@ -8,12 +8,12 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: db-dipoassist
+      MYSQL_DATABASE: db_dipoassist
+      TZ: Asia/Jakarta
     ports:
       - '3306:3306'
     volumes:
       - db_data:/var/lib/mysql
-    command: --default-time-zone='+07:00'
 
   app:
     image: brilliahib/dipoassist-api:latest
