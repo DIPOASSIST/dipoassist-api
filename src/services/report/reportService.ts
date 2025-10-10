@@ -126,3 +126,22 @@ export const getReportByNakesService = async (nakesId: string) => {
     throw new Error('Unknown error fetching reports by nakes ID');
   }
 };
+
+export const getCountReportByNakesService = async (nakesId: string) => {
+  try {
+    const count = await prisma.report.count({
+      where: {
+        user: {
+          nakes_id: nakesId,
+        },
+      },
+    });
+
+    return count;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error('Error counting reports by nakes ID: ' + error.message);
+    }
+    throw new Error('Unknown error counting reports by nakes ID');
+  }
+};

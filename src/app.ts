@@ -9,6 +9,7 @@ import reportRoutes from './routes/report/reportRoute';
 import deviceRoutes from './routes/devices/deviceRoute';
 import wsRoutes from './routes/socket/wsRoute';
 import scheduleRoutes from './routes/schedule/scheduleRoute';
+import nakesRoutes from './routes/medical/medicalSummaryRoute';
 import { sendError, sendSuccess } from './helper/response';
 
 const app = express();
@@ -37,6 +38,7 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/devices', deviceRoutes);
 app.use('/api/ws', wsRoutes);
 app.use('/api/schedules', scheduleRoutes);
+app.use('/api/nakes', nakesRoutes);
 
 // Handle route not found
 app.use((req: Request, res: Response) => {

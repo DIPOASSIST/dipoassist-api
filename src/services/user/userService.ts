@@ -83,6 +83,23 @@ export const getUserByNakesService = async (nakesId: string) => {
   }
 };
 
+export const getCountUserByNakesService = async (nakesId: string) => {
+  try {
+    const count = await prisma.user.count({
+      where: {
+        nakes_id: nakesId,
+      },
+    });
+
+    return count;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error('Error fetching user: ' + error.message);
+    }
+    throw new Error('Unknown error fetching user');
+  }
+};
+
 export const createUserService = async (data: CreateUserType) => {
   try {
     const result = await prisma.user.create({
