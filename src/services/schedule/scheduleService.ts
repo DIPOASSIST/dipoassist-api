@@ -43,6 +43,35 @@ export const getAllSchedulesNakesService = async (userId: string) => {
   }
 };
 
+export const getCountTodaySchedulesNakesService = async (userId: string) => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+
+    const count = await prisma.schedule.count({
+      where: {
+        medical_id: userId,
+        schedule_date: {
+          gte: today,
+          lt: tomorrow,
+        },
+      },
+    });
+
+    return count;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(
+        "Error counting today's schedules for nakes: " + error.message,
+      );
+    }
+    throw new Error("Unknown error counting today's schedules for nakes");
+  }
+};
+
 export const createScheduleService = async (data: ScheduleType) => {
   try {
     const result = await prisma.schedule.create({
