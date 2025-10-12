@@ -27,6 +27,25 @@ export const getAllSchedulePatient = async (
   }
 };
 
+export const getAllScheduleByPatientId = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const data = await getAllSchedulesPatientService(req.params.id);
+
+    return sendSuccess(
+      res,
+      200,
+      'Schedules of patients fetched successfully',
+      data,
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getAllScheduleNakes = async (
   req: Request,
   res: Response,
