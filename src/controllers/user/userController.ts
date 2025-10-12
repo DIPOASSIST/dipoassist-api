@@ -7,6 +7,7 @@ import {
   getUserByNakesService,
   getUserNakesService,
   getUserRoleUserService,
+  updateAccountService,
 } from '../../services/user/userService';
 import bcrypt from 'bcrypt';
 import { getUserByEmailService } from '../../services/auth/authService';
@@ -119,6 +120,31 @@ export const createUser = async (
     return sendSuccess(res, 201, 'User successfully registered', {
       user: userWithoutPassword,
     });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const updateAccount = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const id = req.user.id;
+    const { name, email, username, phone_number } = req.body;
+    const image = req.file;
+
+    const updatedUser = await updateAccountService({
+      id,
+      name,
+      email,
+      username,
+      phone_number,
+      image,
+    });
+
+    return sendSuccess(res, 200, 'Account updated successfully', updatedUser);
   } catch (error) {
     return next(error);
   }

@@ -1,6 +1,8 @@
 import { PrismaClient, Role } from '@prisma/client';
 import { CreateUserType } from '../../validator/user/createUserValidator';
 import { v4 as uuidv4 } from 'uuid';
+import cloudinary from '../../lib/cloudinary';
+import { UpdateAccountServiceProps } from '../../types/user/updateAccount';
 
 const prisma = new PrismaClient();
 
@@ -120,5 +122,48 @@ export const createUserService = async (data: CreateUserType) => {
       throw new Error('Error creating user: ' + error.message);
     }
     throw new Error('Unknown error creating user');
+  }
+};
+
+export const updateAccountService = async (data: UpdateAccountServiceProps) => {
+  try {
+    const { id, name, email, username, phone_number, image } = data;
+
+    let imageUrl: string | undefined;
+
+    if (image && image.buffer) {
+      imageUrl = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            folder: 'user_profiles',
+            public_id: uuidv4(),
+            resource_type: 'image',
+          },
+          (error, result) => {
+            if (error || !result) return reject(error);
+            resolve(result.secure_url);
+          },
+        );
+        stream.end(image.buffer);
+      });
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id },
+      data: {
+        ...(name !== undefined && { name }),
+        ...(email !== undefined && { email }),
+        ...(username !== undefined && { username }),
+        ...(phone_number !== undefined && { phone_number }),
+        ...(imageUrl && { image_url: imageUrl }),
+      },
+    });
+
+    return updatedUser;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error('Error updating account: ' + error.message);
+    }
+    throw new Error('Unknown error updating account');
   }
 };
