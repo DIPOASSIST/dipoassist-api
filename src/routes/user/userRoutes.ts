@@ -21,6 +21,6 @@ router.post('/', adminMiddleware, createUser);
 router.get('/medical', getUserNakes);
 router.get('/patients', getUserRoleUser);
 router.get('/medical/list', nakesMiddleware, getUserByNakes);
-router.get('/:id', adminMiddleware, getDetailUser);
+router.get('/:id', getDetailUser);
 
 export default router;
