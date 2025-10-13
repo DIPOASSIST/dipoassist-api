@@ -1,5 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import { ScheduleType } from '../../validator/schedule/scheduleValidator';
+import { format } from 'date-fns';
+import { sendWhatsapp } from '../fonte/fonteService';
+import { id as idLocale } from 'date-fns/locale';
 
 const prisma = new PrismaClient();
 
@@ -76,7 +79,45 @@ export const createScheduleService = async (data: ScheduleType) => {
   try {
     const result = await prisma.schedule.create({
       data,
+      include: {
+        patient: true,
+      },
     });
+
+    if (result.patient?.phone_number) {
+      const patientName = result.patient.name;
+      const scheduleDate = format(
+        new Date(result.schedule_date),
+        'EEEE, dd MMMM yyyy HH:mm',
+        { locale: idLocale },
+      );
+      const title = result.title;
+      const notes = result.notes ?? 'Tidak ada catatan tambahan.';
+
+      const message = `
+Halo, ${patientName},
+
+Kami ingin memberitahukan bahwa Anda memiliki jadwal terapi baru di Rumah Sakit Nasional Diponegoro (RSND) Universitas Diponegoro:
+
+Judul Terapi: ${title}
+Tanggal & Waktu: ${scheduleDate}
+Lokasi: RSND, Jl. Prof. Moeljono S. Trastotenojo, Tembalang, Semarang 50275
+Catatan Tambahan: ${notes}
+
+Mohon pastikan untuk hadir tepat waktu dan membawa dokumen atau persiapan yang diperlukan.
+
+_Pesan ini dibuat otomatis oleh sistem DipoAssist. Mohon jangan membalas pesan ini._
+
+Terima kasih atas perhatian Anda.
+
+Salam sehat,
+Tim DipoAssist
+      `;
+
+      console.log('Sending WA to:', result.patient.phone_number);
+
+      await sendWhatsapp(result.patient.phone_number, message);
+    }
 
     return result;
   } catch (error) {
