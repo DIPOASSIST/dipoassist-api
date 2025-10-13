@@ -4,12 +4,14 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { registerSchema } from '../../validator/auth/registerValidator';
 import {
+  changePasswordUserService,
   getUserByEmailService,
   getUserByIdService,
   registerUserService,
 } from '../../services/auth/authService';
 import { loginSchema } from '../../validator/auth/loginValidator';
 import { sendError, sendSuccess } from '../../helper/response';
+import { changePasswordSchema } from '../../validator/auth/changePasswordValidator';
 
 export const withoutPasswordHandler = (user: User) => {
   const { password, ...userWithoutPassword } = user;
@@ -163,6 +165,24 @@ export const getAuth = async (
     const { password, ...userWithoutPassword } = user;
 
     res.status(200).json(userWithoutPassword);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const changePassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const userid = req.user.id;
+
+    const parsed = changePasswordSchema.parse(req.body);
+
+    await changePasswordUserService(userid, parsed);
+
+    return sendSuccess(res, 200, 'Password changed successfully');
   } catch (error) {
     next(error);
   }
