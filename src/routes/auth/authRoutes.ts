@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import {
+  changePassword,
   getAuth,
   loginUser,
   loginUserFromWeb,
@@ -15,6 +16,7 @@ router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.post('/login/web', loginUserFromWeb);
 router.get('/get-auth', authMiddleware, getAuth);
+router.post('/change-password', authMiddleware, changePassword);
 router.put(
   '/update-account',
   authMiddleware,
