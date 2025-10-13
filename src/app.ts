@@ -40,7 +40,6 @@ app.use('/api/devices', deviceRoutes);
 app.use('/api/ws', wsRoutes);
 app.use('/api/schedules', scheduleRoutes);
 app.use('/api/nakes', nakesRoutes);
-app.use('/api/patients', patientRoutes);
 
 // Handle route not found
 app.use((req: Request, res: Response) => {
