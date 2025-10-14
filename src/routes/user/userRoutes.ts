@@ -1,11 +1,13 @@
 import { Router } from 'express';
 import {
   createUser,
+  deleteUser,
   getAllUser,
   getDetailUser,
   getUserByNakes,
   getUserNakes,
   getUserRoleUser,
+  resetPassword,
 } from '../../controllers/user/userController';
 import {
   adminMiddleware,
@@ -18,6 +20,8 @@ const router = Router();
 router.use(authMiddleware);
 router.get('/', adminMiddleware, getAllUser);
 router.post('/', adminMiddleware, createUser);
+router.delete('/:id/delete', adminMiddleware, deleteUser);
+router.patch('/:id/reset-password', adminMiddleware, resetPassword);
 router.get('/medical', getUserNakes);
 router.get('/patients', getUserRoleUser);
 router.get('/medical/list', nakesMiddleware, getUserByNakes);

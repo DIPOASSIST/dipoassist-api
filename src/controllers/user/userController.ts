@@ -2,11 +2,13 @@ import { NextFunction, Request, Response } from 'express';
 import { sendError, sendSuccess } from '../../helper/response';
 import {
   createUserService,
+  deleteUserService,
   getAllUserService,
   getDetailUserService,
   getUserByNakesService,
   getUserNakesService,
   getUserRoleUserService,
+  resetPasswordService,
   updateAccountService,
 } from '../../services/user/userService';
 import bcrypt from 'bcrypt';
@@ -147,5 +149,51 @@ export const updateAccount = async (
     return sendSuccess(res, 200, 'Account updated successfully', updatedUser);
   } catch (error) {
     return next(error);
+  }
+};
+
+export const deleteUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const id = req.params.id;
+
+    const data = await deleteUserService(id);
+
+    if (!data) {
+      return sendError(res, 404, 'User not found');
+    }
+
+    return sendSuccess(res, 200, 'User deleted successfully', data);
+  } catch (error) {
+    if (error instanceof Error) {
+      return sendError(res, 500, 'Error deleting user: ' + error.message);
+    }
+    return sendError(res, 500, 'Unknown error deleting user');
+  }
+};
+
+export const resetPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const id = req.params.id;
+
+    const data = await resetPasswordService(id);
+
+    if (!data) {
+      return sendError(res, 404, 'User not found');
+    }
+
+    return sendSuccess(res, 200, 'Password reset successfully', data);
+  } catch (error) {
+    if (error instanceof Error) {
+      return sendError(res, 500, 'Error resetting password: ' + error.message);
+    }
+    return sendError(res, 500, 'Unknown error resetting password');
   }
 };

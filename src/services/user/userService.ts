@@ -3,6 +3,7 @@ import { CreateUserType } from '../../validator/user/createUserValidator';
 import { v4 as uuidv4 } from 'uuid';
 import cloudinary from '../../lib/cloudinary';
 import { UpdateAccountServiceProps } from '../../types/user/updateAccount';
+import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -165,5 +166,42 @@ export const updateAccountService = async (data: UpdateAccountServiceProps) => {
       throw new Error('Error updating account: ' + error.message);
     }
     throw new Error('Unknown error updating account');
+  }
+};
+
+export const deleteUserService = async (id: string) => {
+  try {
+    const result = await prisma.user.delete({
+      where: { id },
+    });
+
+    return result;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error('Error deleting user: ' + error.message);
+    }
+    throw new Error('Unknown error deleting user');
+  }
+};
+
+export const resetPasswordService = async (id: string) => {
+  try {
+    const hashPassword = await bcrypt.hash('12345', 10);
+
+    const result = await prisma.user.update({
+      where: {
+        id,
+      },
+      data: {
+        password: hashPassword,
+      },
+    });
+
+    return result;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error('Error resetting password: ' + error.message);
+    }
+    throw new Error('Unknown error resetting password');
   }
 };
