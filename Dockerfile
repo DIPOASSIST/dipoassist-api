@@ -8,7 +8,7 @@ RUN npm install
 
 COPY . .
 
-COPY /root/dipoassist-api/src/config/serviceAccountKey.json ./src/config/serviceAccountKey.json
+COPY ./src/config/serviceAccountKey.json ./src/config/serviceAccountKey.json
 
 RUN npx prisma generate
 RUN npm run build
