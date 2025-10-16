@@ -8,8 +8,6 @@ RUN npm install
 
 COPY . .
 
-COPY ./src/config/serviceAccountKey.json ./src/config/serviceAccountKey.json
-
 RUN npx prisma generate
 RUN npm run build
 
