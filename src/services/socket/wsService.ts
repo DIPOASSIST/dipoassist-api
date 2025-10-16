@@ -21,7 +21,6 @@ export const handleMessage = async (
       features: data.features,
     });
     const prediction = response.data;
-
     const result = response.data.predicted_label;
 
     console.log('Response from ML:', prediction);
@@ -29,15 +28,9 @@ export const handleMessage = async (
     const urgentPhrase = await prisma.phrase.findFirst({
       where: {
         text: result,
-        urgencies: {
-          some: {
-            is_urgent: true,
-          },
-        },
+        urgencies: { some: { is_urgent: true } },
       },
-      include: {
-        urgencies: true,
-      },
+      include: { urgencies: true },
     });
 
     wsServer.clients.forEach((client) => {
@@ -46,41 +39,47 @@ export const handleMessage = async (
       }
     });
 
-    if (urgentPhrase) {
-      console.log('🚨 Urgent phrase detected:', urgentPhrase.text);
-
+    if (urgentPhrase && urgentPhrase.urgencies.length > 0) {
       const userId = urgentPhrase.urgencies[0].user_id;
       const user = await prisma.user.findUnique({
         where: { id: userId },
         select: { fcm_token: true, name: true },
       });
 
-      console.log('User to notify:', user);
-
       if (user?.fcm_token) {
+        const title = '🚨 Urgent Phrase Detected';
+        const body = `${user.name} mengucapkan kata "${urgentPhrase.text}"`;
+
         await fcm.send({
           token: user.fcm_token,
-          notification: {
-            title: '🚨 Urgent Phrase Detected',
-            body: `${user.name} mengucapkan kata "${urgentPhrase.text}"`,
-          },
+          notification: { title, body },
           android: {
             priority: 'high',
+            notification: {
+              sound: 'alert',
+            },
           },
           apns: {
             payload: {
               aps: {
-                sound: 'default',
-                alert: {
-                  title: '🚨 Urgent Phrase Detected',
-                  body: `${user.name} mengucapkan kata "${urgentPhrase.text}"`,
-                },
+                alert: { title, body },
+                sound: 'alert.aiff',
+                contentAvailable: true,
               },
             },
           },
+          data: {
+            urgent: 'true',
+            phrase: urgentPhrase.text,
+          },
         });
 
-        console.log('✅ Push notification sent');
+        console.log(
+          '✅ Push notification sent with custom alert sound to user:',
+          user.name,
+        );
+      } else {
+        console.log('⚠️ User has no FCM token, cannot send notification');
       }
     }
   } catch (error) {

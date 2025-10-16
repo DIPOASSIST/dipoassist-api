@@ -1,6 +1,6 @@
 import WebSocket from 'ws';
 
-const socket = new WebSocket('ws://192.168.0.178:9000');
+const socket = new WebSocket('wss://api.dipoassist.cloud');
 
 socket.on('open', () => {
   console.log('✅ Connected to websocket server');
