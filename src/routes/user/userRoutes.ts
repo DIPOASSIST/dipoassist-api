@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   createUser,
   deleteUser,
+  generateFcmToken,
   getAllUser,
   getDetailUser,
   getUserByNakes,
@@ -20,6 +21,7 @@ const router = Router();
 router.use(authMiddleware);
 router.get('/', adminMiddleware, getAllUser);
 router.post('/', adminMiddleware, createUser);
+router.patch('/generate', generateFcmToken);
 router.delete('/:id/delete', adminMiddleware, deleteUser);
 router.patch('/:id/reset-password', adminMiddleware, resetPassword);
 router.get('/medical', getUserNakes);

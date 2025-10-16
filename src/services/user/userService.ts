@@ -205,3 +205,26 @@ export const resetPasswordService = async (id: string) => {
     throw new Error('Unknown error resetting password');
   }
 };
+
+export const generateFcmTokenService = async (
+  id: string,
+  fcm_token: string,
+) => {
+  try {
+    const result = await prisma.user.update({
+      where: {
+        id,
+      },
+      data: {
+        fcm_token,
+      },
+    });
+
+    return result;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error('Error generating FCM token: ' + error.message);
+    }
+    throw new Error('Unknown error generating FCM token');
+  }
+};

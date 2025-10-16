@@ -3,6 +3,7 @@ import { sendError, sendSuccess } from '../../helper/response';
 import {
   createUserService,
   deleteUserService,
+  generateFcmTokenService,
   getAllUserService,
   getDetailUserService,
   getUserByNakesService,
@@ -195,5 +196,34 @@ export const resetPassword = async (
       return sendError(res, 500, 'Error resetting password: ' + error.message);
     }
     return sendError(res, 500, 'Unknown error resetting password');
+  }
+};
+
+export const generateFcmToken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const id = req.user.id;
+
+    const { fcm_token } = req.body;
+
+    const data = await generateFcmTokenService(id, fcm_token);
+
+    if (!data) {
+      return sendError(res, 404, 'User not found');
+    }
+
+    return sendSuccess(res, 200, 'FCM token generated successfully', data);
+  } catch (error) {
+    if (error instanceof Error) {
+      return sendError(
+        res,
+        500,
+        'Error generating FCM token: ' + error.message,
+      );
+    }
+    return sendError(res, 500, 'Unknown error generating FCM token');
   }
 };
