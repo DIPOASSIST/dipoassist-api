@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import cloudinary from '../../lib/cloudinary';
 import { UpdateAccountServiceProps } from '../../types/user/updateAccount';
 import bcrypt from 'bcrypt';
+import { sendWhatsapp } from '../fonte/fonteService';
 
 const prisma = new PrismaClient();
 
@@ -196,6 +197,31 @@ export const resetPasswordService = async (id: string) => {
         password: hashPassword,
       },
     });
+
+    if (result.phone_number) {
+      const userName = result.name;
+
+      const message = `
+Halo, ${userName},
+
+Kami ingin memberitahukan bahwa password akun Anda di sistem DipoAssist telah direset oleh Admin.
+
+Password baru Anda adalah: 12345
+
+Silakan login menggunakan password di atas, dan segera ubah password Anda setelah berhasil login demi keamanan akun Anda.
+
+_Pesan ini dibuat otomatis oleh sistem DipoAssist. Mohon jangan membalas pesan ini._
+
+Terima kasih atas perhatian Anda.
+
+Salam sehat,  
+Tim DipoAssist
+      `;
+
+      console.log('Sending WA reset password to:', result.phone_number);
+
+      await sendWhatsapp(result.phone_number, message);
+    }
 
     return result;
   } catch (error) {

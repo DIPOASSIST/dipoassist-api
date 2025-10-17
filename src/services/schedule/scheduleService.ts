@@ -151,11 +151,53 @@ export const updateScheduleService = async (
 
 export const deleteScheduleService = async (scheduleId: string) => {
   try {
+    const schedule = await prisma.schedule.findUnique({
+      where: { id: scheduleId },
+      include: { patient: true },
+    });
+
+    if (!schedule) {
+      throw new Error('Schedule not found');
+    }
+
     const result = await prisma.schedule.delete({
       where: {
         id: scheduleId,
       },
     });
+
+    if (schedule.patient?.phone_number) {
+      const patientName = schedule.patient.name;
+      const scheduleDate = format(
+        new Date(schedule.schedule_date),
+        'EEEE, dd MMMM yyyy HH:mm',
+        { locale: idLocale },
+      );
+      const title = schedule.title;
+
+      const message = `
+Halo, ${patientName},
+
+Kami ingin memberitahukan bahwa jadwal terapi Anda di Rumah Sakit Nasional Diponegoro (RSND) Universitas Diponegoro **telah dibatalkan** oleh tenaga kesehatan kami.
+
+Detail Jadwal yang Dibatalkan:
+Judul Terapi: ${title}
+Tanggal & Waktu: ${scheduleDate}
+Lokasi: RSND, Jl. Prof. Moeljono S. Trastotenojo, Tembalang, Semarang 50275
+
+Mohon maaf atas ketidaknyamanan yang terjadi.  
+Anda akan dihubungi kembali oleh tim kami untuk penjadwalan ulang jika diperlukan.
+
+_Pesan ini dibuat otomatis oleh sistem DipoAssist. Mohon jangan membalas pesan ini._
+
+Terima kasih atas pengertian Anda.
+
+Salam sehat,  
+Tim DipoAssist
+      `;
+
+      await sendWhatsapp(schedule.patient.phone_number, message);
+    }
 
     return result;
   } catch (error) {
