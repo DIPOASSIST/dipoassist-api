@@ -11,6 +11,8 @@ export const getAllReportsService = async () => {
           select: {
             id: true,
             name: true,
+            phone_number: true,
+            email: true,
           },
         },
       },
@@ -44,6 +46,16 @@ export const getDetailReportService = async (reportId: string) => {
   try {
     const result = await prisma.report.findUnique({
       where: { id: reportId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            phone_number: true,
+            email: true,
+          },
+        },
+      },
     });
     return result;
   } catch (error) {
