@@ -57,6 +57,7 @@ export const handleMessage = async (
             priority: 'high',
             notification: {
               sound: 'alert',
+              channelId: 'high_importance_channel_alert',
             },
           },
           apns: {
