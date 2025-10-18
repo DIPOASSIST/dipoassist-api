@@ -54,7 +54,7 @@ export const handleMessage = async (
     const urgentPhrase = await prisma.phrase.findFirst({
       where: {
         text: result,
-        urgencies: { some: { is_urgent: true } },
+        urgencies: { some: { is_urgent: true, user_id: device.user_id } },
       },
       include: { urgencies: true },
     });
@@ -63,6 +63,7 @@ export const handleMessage = async (
       data: {
         user_id: device.user_id,
         predicted_label: result,
+        emg_signal: JSON.stringify(data.features),
       },
     });
 
