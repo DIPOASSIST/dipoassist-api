@@ -116,9 +116,12 @@ model History{
   id String @id @default(cuid())
   user_id String
   predicted_label String
+  emg_signal      String   @db.MediumText
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
   user User @relation("History", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("histories")
 }
 
 model Report{
@@ -145,4 +148,6 @@ model Schedule{
 
   patient User @relation("PatientSchedules", fields: [patient_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   nakes   User @relation("MedicalSchedules", fields: [medical_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("schedules")
 }
