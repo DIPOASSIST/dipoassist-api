@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import { PrismaClient } from '@prisma/client';
 import { DeviceType } from '../../validator/devices/device-validator';
 
@@ -36,6 +37,20 @@ export const getDetailDeviceService = async (id: string) => {
       where: {
         id,
       },
+      include: {
+        patient: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        nakes: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
     return device;
   } catch (error) {
@@ -53,6 +68,7 @@ export const createDeviceService = async (data: DeviceType) => {
         user_id: data.user_id,
         medical_id: data.medical_id,
         name: data.name,
+        device_token: uuidv4(),
       },
     });
     return device;
@@ -94,5 +110,31 @@ export const deleteDeviceService = async (id: string) => {
       throw new Error('Error deleting device: ' + error.message);
     }
     throw new Error('Unknown error deleting device');
+  }
+};
+
+export const regenerateDeviceTokenService = async (id: string) => {
+  try {
+    const newToken = uuidv4();
+
+    const updatedDevice = await prisma.device.update({
+      where: { id },
+      data: {
+        device_token: newToken,
+      },
+      select: {
+        id: true,
+        name: true,
+        device_token: true,
+        updated_at: true,
+      },
+    });
+
+    return updatedDevice;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error('Error regenerating device token: ' + error.message);
+    }
+    throw new Error('Unknown error regenerating device token');
   }
 };

@@ -4,6 +4,7 @@ import {
   deleteDevice,
   getAllDevice,
   getDetailDevice,
+  regenerateDeviceToken,
   updateDevice,
 } from '../../controllers/devices/deviceController';
 import {
@@ -17,6 +18,7 @@ router.use(authMiddleware);
 router.get('/', getAllDevice);
 router.get('/:id', getDetailDevice);
 router.post('/', adminMiddleware, createDevice);
+router.patch('/:id/regenerate', adminMiddleware, regenerateDeviceToken);
 router.put('/:id', adminMiddleware, updateDevice);
 router.delete('/:id', adminMiddleware, deleteDevice);
 
