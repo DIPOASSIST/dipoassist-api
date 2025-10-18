@@ -2,6 +2,7 @@ import { Server as HTTPServer } from 'http';
 import WebSocket from 'ws';
 import { handleMessage } from '../../services/socket/wsService';
 import { PrismaClient } from '@prisma/client';
+import { logDeviceEvent } from '../../utils/logger';
 
 const prisma = new PrismaClient();
 
@@ -39,11 +40,17 @@ export const initWebSocket = (server: HTTPServer) => {
         (ws as any).deviceId = device.id;
         (ws as any).userId = device.user_id;
 
-        console.log(`✅ Device connected: ${device.name} (${device.id})`);
+        await logDeviceEvent(device.id, `✅ Device connected: ${device.name}`);
 
         broadcastStatus(wss, device.id, true);
 
-        ws.on('message', (message) => handleMessage(wss, message, { device }));
+        ws.on('message', (message) => {
+          logDeviceEvent(
+            device.id,
+            `📩 Message received: ${message.toString().slice(0, 100)}`,
+          );
+          handleMessage(wss, message, { device });
+        });
 
         ws.on('close', async () => {
           console.log(`🔌 Device disconnected: ${device.name}`);
@@ -52,6 +59,10 @@ export const initWebSocket = (server: HTTPServer) => {
             data: { is_online: false },
           });
 
+          await logDeviceEvent(
+            device.id,
+            `❌ Device disconnected: ${device.name}`,
+          );
           broadcastStatus(wss, device.id, false);
         });
 
