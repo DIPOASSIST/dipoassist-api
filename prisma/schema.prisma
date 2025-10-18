@@ -79,6 +79,7 @@ model Device{
   medical_id String
   device_token String @unique
   name String
+  is_online Boolean @default(false)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
