@@ -3,6 +3,7 @@ import axios from 'axios';
 import { PrismaClient } from '@prisma/client';
 import { fcm } from '../../config/firebase';
 import { Device } from '../../types/devices/device';
+import { logDeviceEvent } from '../../utils/logger';
 
 const prisma = new PrismaClient();
 
@@ -15,11 +16,14 @@ export const handleMessage = async (
   message: WebSocket.Data,
   context: { device: Device },
 ) => {
-  try {
-    const device = context.device;
-    const data: FeatureData = JSON.parse(message.toString());
+  const device = context.device;
 
-    console.log('Data received:', data);
+  try {
+    const data: FeatureData = JSON.parse(message.toString());
+    await logDeviceEvent(
+      device.id,
+      `📡 Data received: ${JSON.stringify(data).slice(0, 100)}`,
+    );
 
     const response = await axios.post(process.env.ML_API_URL!, {
       features: data.features,
@@ -28,9 +32,9 @@ export const handleMessage = async (
     const prediction = response.data;
     const result = response.data.predicted_label;
 
-    console.log('Response from ML:', prediction);
+    await logDeviceEvent(device.id, `🤖 ML Prediction: ${result}`);
 
-    // broadcast to client who have a this device
+    // 🔹 broadcast ke semua client user yg memiliki device ini
     wsServer.clients.forEach((client: any) => {
       if (
         client.readyState === WebSocket.OPEN &&
@@ -55,7 +59,7 @@ export const handleMessage = async (
       include: { urgencies: true },
     });
 
-    const history = await prisma.history.create({
+    await prisma.history.create({
       data: {
         user_id: device.user_id,
         predicted_label: result,
@@ -63,6 +67,8 @@ export const handleMessage = async (
     });
 
     if (urgentPhrase && urgentPhrase.urgencies.length > 0) {
+      await logDeviceEvent(device.id, `🚨 Urgent phrase detected: "${result}"`);
+
       for (const urgency of urgentPhrase.urgencies) {
         const user = await prisma.user.findUnique({
           where: { id: urgency.user_id },
@@ -98,14 +104,18 @@ export const handleMessage = async (
             },
           });
 
-          console.log(
-            '✅ Push notification sent with custom alert sound to user:',
-            user.name,
+          await logDeviceEvent(
+            device.id,
+            `📱 Push notification sent to user: ${user.name}`,
           );
         }
       }
     }
-  } catch (error) {
+  } catch (error: any) {
+    await logDeviceEvent(
+      device.id,
+      `❌ Error processing message: ${error.message}`,
+    );
     console.error('❌ Error processing message:', error);
   }
 };

@@ -1,7 +1,7 @@
 import WebSocket from 'ws';
 
 const socket = new WebSocket(
-  'ws://localhost:9000?token=30affc87-356c-4a6e-97b7-bebdf1440b6a',
+  'wss://api.dipoassist.cloud?token=505ed0ab-cb47-4a07-94fc-f7e1d1db7ccb',
 );
 
 socket.on('open', () => {

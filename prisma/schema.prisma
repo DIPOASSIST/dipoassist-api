@@ -85,8 +85,19 @@ model Device{
 
   patient User @relation("PatientDevices", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   nakes   User @relation("MedicalDevices", fields: [medical_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  logs DeviceLog[] @relation("DeviceLogs")
 
   @@map("devices")
+}
+
+model DeviceLog{
+  id String @id @default(cuid())
+  device_id String
+  message String
+  created_at DateTime @default(now())
+  device Device @relation("DeviceLogs", fields: [device_id], references: [id], onDelete: Cascade)
+
+  @@map("device_logs")
 }
 
 model Predict {

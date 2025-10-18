@@ -12,6 +12,7 @@ import scheduleRoutes from './routes/schedule/scheduleRoute';
 import nakesRoutes from './routes/medical/medicalSummaryRoute';
 import patientRoutes from './routes/patient/patientRoute';
 import historyRoutes from './routes/history/historyRoute';
+import deviceLogRoutes from './routes/devices/deviceLogRoute';
 import { sendError, sendSuccess } from './helper/response';
 
 const app = express();
@@ -43,6 +44,7 @@ app.use('/api/schedules', scheduleRoutes);
 app.use('/api/nakes', nakesRoutes);
 app.use('/api/patients', patientRoutes);
 app.use('/api/history', historyRoutes);
+app.use('/api/device-logs', deviceLogRoutes);
 
 // Handle route not found
 app.use((req: Request, res: Response) => {
