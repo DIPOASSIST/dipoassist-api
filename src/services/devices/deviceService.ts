@@ -31,6 +31,66 @@ export const getAllDeviceService = async () => {
   }
 };
 
+export const getAllDeviceByUserService = async (userId: string) => {
+  try {
+    const devices = await prisma.device.findMany({
+      where: {
+        user_id: userId,
+      },
+      include: {
+        patient: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        nakes: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+    return devices;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error('Error fetching devices by user: ' + error.message);
+    }
+    throw new Error('Unknown error fetching devices by user');
+  }
+};
+
+export const getAllDeviceByNakesService = async (nakesId: string) => {
+  try {
+    const devices = await prisma.device.findMany({
+      where: {
+        medical_id: nakesId,
+      },
+      include: {
+        patient: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        nakes: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+    return devices;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error('Error fetching devices by nakes: ' + error.message);
+    }
+    throw new Error('Unknown error fetching devices by nakes');
+  }
+};
+
 export const getDetailDeviceService = async (id: string) => {
   try {
     const device = await prisma.device.findUnique({

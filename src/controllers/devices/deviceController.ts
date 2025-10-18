@@ -3,6 +3,8 @@ import { sendSuccess } from '../../helper/response';
 import {
   createDeviceService,
   deleteDeviceService,
+  getAllDeviceByNakesService,
+  getAllDeviceByUserService,
   getAllDeviceService,
   getDetailDeviceService,
   regenerateDeviceTokenService,
@@ -93,6 +95,51 @@ export const regenerateDeviceToken = async (
     const data = await regenerateDeviceTokenService(deviceId);
 
     return sendSuccess(res, 200, 'Device token regenerated successfully', data);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAllDeviceByNakes = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const nakesId = req.user.id;
+    const data = await getAllDeviceByNakesService(nakesId);
+
+    return sendSuccess(res, 200, 'Devices fetched successfully', data);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAllDeviceByUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const userId = req.user.id;
+    const data = await getAllDeviceByUserService(userId);
+
+    return sendSuccess(res, 200, 'Devices fetched successfully', data);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAllDeviceByUserId = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const userId = req.params.userId;
+    const data = await getAllDeviceByUserService(userId);
+
+    return sendSuccess(res, 200, 'Devices fetched successfully', data);
   } catch (error) {
     next(error);
   }
