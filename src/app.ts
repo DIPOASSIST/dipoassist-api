@@ -11,6 +11,7 @@ import wsRoutes from './routes/socket/wsRoute';
 import scheduleRoutes from './routes/schedule/scheduleRoute';
 import nakesRoutes from './routes/medical/medicalSummaryRoute';
 import patientRoutes from './routes/patient/patientRoute';
+import historyRoutes from './routes/history/historyRoute';
 import { sendError, sendSuccess } from './helper/response';
 
 const app = express();
@@ -41,6 +42,7 @@ app.use('/api/ws', wsRoutes);
 app.use('/api/schedules', scheduleRoutes);
 app.use('/api/nakes', nakesRoutes);
 app.use('/api/patients', patientRoutes);
+app.use('/api/history', historyRoutes);
 
 // Handle route not found
 app.use((req: Request, res: Response) => {

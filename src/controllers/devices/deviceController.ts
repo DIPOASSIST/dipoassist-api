@@ -5,6 +5,7 @@ import {
   deleteDeviceService,
   getAllDeviceService,
   getDetailDeviceService,
+  regenerateDeviceTokenService,
   updateDeviceService,
 } from '../../services/devices/deviceService';
 
@@ -77,6 +78,21 @@ export const deleteDevice = async (
 
     await deleteDeviceService(deviceId);
     return sendSuccess(res, 200, 'Device deleted successfully');
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const regenerateDeviceToken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const deviceId = req.params.id;
+    const data = await regenerateDeviceTokenService(deviceId);
+
+    return sendSuccess(res, 200, 'Device token regenerated successfully', data);
   } catch (error) {
     next(error);
   }
