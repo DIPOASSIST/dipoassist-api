@@ -30,16 +30,29 @@ export const initWebSocket = (server: HTTPServer) => {
           return;
         }
 
+        await prisma.device.update({
+          where: { id: device.id },
+          data: { is_online: true },
+        });
+
         (ws as any).type = 'device';
         (ws as any).deviceId = device.id;
         (ws as any).userId = device.user_id;
 
         console.log(`✅ Device connected: ${device.name} (${device.id})`);
 
+        broadcastStatus(wss, device.id, true);
+
         ws.on('message', (message) => handleMessage(wss, message, { device }));
 
-        ws.on('close', () => {
+        ws.on('close', async () => {
           console.log(`🔌 Device disconnected: ${device.name}`);
+          await prisma.device.update({
+            where: { id: device.id },
+            data: { is_online: false },
+          });
+
+          broadcastStatus(wss, device.id, false);
         });
 
         return;
@@ -62,3 +75,24 @@ export const initWebSocket = (server: HTTPServer) => {
 
   return wss;
 };
+
+function broadcastStatus(
+  wss: WebSocket.Server,
+  deviceId: string,
+  isOnline: boolean,
+) {
+  const payload = JSON.stringify({
+    type: 'device_status',
+    deviceId,
+    isOnline,
+  });
+
+  wss.clients.forEach((client) => {
+    if (
+      (client as any).type === 'user' &&
+      client.readyState === WebSocket.OPEN
+    ) {
+      client.send(payload);
+    }
+  });
+}
