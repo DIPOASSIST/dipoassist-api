@@ -151,3 +151,13 @@ model Schedule{
 
   @@map("schedules")
 }
+
+model InteractiveImage{
+  id String @id @default(cuid())
+  title String
+  image_url String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("interactive_images")
+}
