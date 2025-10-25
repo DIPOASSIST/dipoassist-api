@@ -3,6 +3,7 @@ import {
   createInteractiveImageService,
   deleteInteractiveImageService,
   getAllInteractiveImageService,
+  getDetailInteractiveImageService,
   updateInteractiveImageService,
 } from '../../services/interactive-image/interactiveImageService';
 import { sendSuccess } from '../../helper/response';
@@ -19,6 +20,26 @@ export const getAllInteractiveImages = async (
       res,
       200,
       'Interactive images fetched successfully',
+      data,
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getDetailInteractiveImage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const interactiveImageId = req.params.id;
+    const data = await getDetailInteractiveImageService(interactiveImageId);
+
+    return sendSuccess(
+      res,
+      200,
+      'Interactive image detail fetched successfully',
       data,
     );
   } catch (error) {
