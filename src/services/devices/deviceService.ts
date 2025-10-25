@@ -198,3 +198,49 @@ export const regenerateDeviceTokenService = async (id: string) => {
     throw new Error('Unknown error regenerating device token');
   }
 };
+
+export const getCountActiveDevicesService = async () => {
+  try {
+    const result = await prisma.device.count({
+      where: {
+        is_online: true,
+      },
+    });
+
+    return result;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error('Error counting active devices: ' + error.message);
+    }
+    throw new Error('Unknown error counting active devices');
+  }
+};
+
+export const getCountDevicesService = async () => {
+  try {
+    const result = await prisma.device.count();
+    return result;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error('Error counting devices: ' + error.message);
+    }
+    throw new Error('Unknown error counting devices');
+  }
+};
+
+export const getCountDeviceInactiveService = async () => {
+  try {
+    const result = await prisma.device.count({
+      where: {
+        is_online: false,
+      },
+    });
+
+    return result;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error('Error counting inactive devices: ' + error.message);
+    }
+    throw new Error('Unknown error counting inactive devices');
+  }
+};
