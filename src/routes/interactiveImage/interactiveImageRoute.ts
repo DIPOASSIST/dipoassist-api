@@ -7,6 +7,7 @@ import {
   createInteractiveImage,
   deleteInteractiveImage,
   getAllInteractiveImages,
+  getDetailInteractiveImage,
   updateInteractiveImage,
 } from '../../controllers/interactiveImage/interactiveImageController';
 import { upload } from '../../middlewares/uploadMiddleware';
@@ -15,6 +16,7 @@ const router = Router();
 
 router.use(authMiddleware);
 router.get('/', getAllInteractiveImages);
+router.get('/:id', getDetailInteractiveImage);
 router.post(
   '/',
   adminMiddleware,

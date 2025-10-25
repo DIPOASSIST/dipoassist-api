@@ -21,6 +21,23 @@ export const getAllInteractiveImageService = async () => {
   }
 };
 
+export const getDetailInteractiveImageService = async (id: string) => {
+  try {
+    const result = await prisma.interactiveImage.findUnique({
+      where: { id },
+    });
+
+    return result;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(
+        'Error fetching interactive image detail: ' + error.message,
+      );
+    }
+    throw new Error('Unknown error fetching interactive image detail');
+  }
+};
+
 export const createInteractiveImageService = async (
   data: CreateInteractiveImageProps,
 ) => {
