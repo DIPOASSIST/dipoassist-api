@@ -17,24 +17,35 @@ export const handleMessage = async (
   context: { device: Device },
 ) => {
   const device = context.device;
+  const startTime = Date.now();
 
   try {
     const data: FeatureData = JSON.parse(message.toString());
+    const tParse = Date.now();
+
     await logDeviceEvent(
       device.id,
       `📡 Data received: ${JSON.stringify(data).slice(0, 100)}`,
     );
 
+    // ml prediction
+    const mlStart = Date.now();
     const response = await axios.post(process.env.ML_API_URL!, {
       features: data.features,
     });
+    const mlEnd = Date.now();
+    const mlLatency = mlEnd - mlStart;
 
     const prediction = response.data;
     const result = response.data.predicted_label;
 
-    await logDeviceEvent(device.id, `🤖 ML Prediction: ${result}`);
+    await logDeviceEvent(
+      device.id,
+      `🤖 ML Prediction: ${result} (${mlLatency} ms)`,
+    );
 
-    // 🔹 broadcast ke semua client user yg memiliki device ini
+    // broadcast to user clients
+    const broadcastStart = Date.now();
     wsServer.clients.forEach((client: any) => {
       if (
         client.readyState === WebSocket.OPEN &&
@@ -50,15 +61,9 @@ export const handleMessage = async (
         );
       }
     });
+    const broadcastEnd = Date.now();
 
-    const urgentPhrase = await prisma.phrase.findFirst({
-      where: {
-        text: result,
-        urgencies: { some: { is_urgent: true, user_id: device.user_id } },
-      },
-      include: { urgencies: true },
-    });
-
+    // save history
     await prisma.history.create({
       data: {
         user_id: device.user_id,
@@ -67,6 +72,16 @@ export const handleMessage = async (
       },
     });
 
+    // urgent phrase detection
+    const urgentPhrase = await prisma.phrase.findFirst({
+      where: {
+        text: result,
+        urgencies: { some: { is_urgent: true, user_id: device.user_id } },
+      },
+      include: { urgencies: true },
+    });
+
+    const notificationStart = Date.now();
     if (urgentPhrase && urgentPhrase.urgencies.length > 0) {
       await logDeviceEvent(device.id, `🚨 Urgent phrase detected: "${result}"`);
 
@@ -112,6 +127,45 @@ export const handleMessage = async (
         }
       }
     }
+    const notificationEnd = Date.now();
+
+    // total latency calculation
+    const endTime = Date.now();
+    const totalLatency = endTime - startTime;
+
+    // save latencies to database
+    await prisma.latencyLog.createMany({
+      data: [
+        {
+          device_id: device.id,
+          type: 'ml',
+          duration_ms: mlLatency,
+          description: 'Latency of machine learning model prediction process',
+        },
+        {
+          device_id: device.id,
+          type: 'broadcast',
+          duration_ms: broadcastEnd - broadcastStart,
+          description:
+            'Latency of broadcasting prediction result to connected user clients',
+        },
+        {
+          device_id: device.id,
+          type: 'notification',
+          duration_ms: notificationEnd - notificationStart,
+          description: 'Latency of sending FCM push notification to users',
+        },
+        {
+          device_id: device.id,
+          type: 'total',
+          duration_ms: totalLatency,
+          description:
+            'Total processing time from device → backend → ML → notification',
+        },
+      ],
+    });
+
+    await logDeviceEvent(device.id, `⏱️ Total latency: ${totalLatency} ms`);
   } catch (error: any) {
     await logDeviceEvent(
       device.id,
