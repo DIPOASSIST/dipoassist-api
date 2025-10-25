@@ -254,3 +254,15 @@ export const generateFcmTokenService = async (
     throw new Error('Unknown error generating FCM token');
   }
 };
+
+export const getCountUserService = async () => {
+  try {
+    const count = await prisma.user.count();
+    return count;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error('Error fetching user count: ' + error.message);
+    }
+    throw new Error('Unknown error fetching user count');
+  }
+};

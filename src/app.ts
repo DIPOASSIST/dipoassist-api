@@ -14,6 +14,7 @@ import patientRoutes from './routes/patient/patientRoute';
 import historyRoutes from './routes/history/historyRoute';
 import deviceLogRoutes from './routes/devices/deviceLogRoute';
 import interactiveImageRoutes from './routes/interactiveImage/interactiveImageRoute';
+import adminSummaryRoute from './routes/admin/summary/adminSummaryRoute';
 import { sendError, sendSuccess } from './helper/response';
 
 const app = express();
@@ -47,6 +48,7 @@ app.use('/api/patients', patientRoutes);
 app.use('/api/history', historyRoutes);
 app.use('/api/device-logs', deviceLogRoutes);
 app.use('/api/interactive-images', interactiveImageRoutes);
+app.use('/api/admin', adminSummaryRoute);
 
 // Handle route not found
 app.use((req: Request, res: Response) => {
