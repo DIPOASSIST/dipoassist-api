@@ -16,8 +16,8 @@ export const getAdminSummary = async (
     const [deviceCount, deviceActiveCount, deviceInactiveCount, userCount] =
       await Promise.all([
         getCountDevicesService(),
-        getCountDeviceInactiveService(),
         getCountActiveDevicesService(),
+        getCountDeviceInactiveService(),
         getCountUserService(),
       ]);
 
