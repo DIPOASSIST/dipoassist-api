@@ -86,6 +86,7 @@ model Device{
   patient User @relation("PatientDevices", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   nakes   User @relation("MedicalDevices", fields: [medical_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   logs DeviceLog[] @relation("DeviceLogs")
+  latencies LatencyLog[] @relation("DeviceLatencies")
 
   @@map("devices")
 }
@@ -160,4 +161,18 @@ model InteractiveImage{
   updated_at DateTime @updatedAt
 
   @@map("interactive_images")
+}
+
+model LatencyLog{
+  id String @id @default(cuid())
+  device_id    String
+  type         String  
+  duration_ms  Int
+  description  String?  
+  created_at   DateTime @default(now())
+
+  device Device @relation("DeviceLatencies", fields: [device_id], references: [id], onDelete: Cascade)
+
+  @@index([device_id])
+  @@map("latency_logs")
 }
