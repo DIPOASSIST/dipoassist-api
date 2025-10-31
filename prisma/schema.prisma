@@ -176,3 +176,40 @@ model LatencyLog{
   @@index([device_id])
   @@map("latency_logs")
 }
+
+model TheraphySemantic{
+  id String @id @default(cuid())
+  title String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  questions QuestionTheraphy[] @relation("TheraphyQuestions")
+
+  @@map("theraphy_semantics")
+}
+
+model QuestionTheraphy{
+  id String @id @default(cuid())
+  theraphy_id String
+  question_text String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  theraphy TheraphySemantic @relation("TheraphyQuestions", fields: [theraphy_id], references: [id], onDelete: Cascade)
+  answers AnswerTheraphy? @relation("QuestionAnswers")
+
+  @@map("question_theraphies")
+}
+
+model AnswerTheraphy{
+  id String @id @default(cuid())
+  question_id String @unique
+  answer_text String
+  answer_image String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  question QuestionTheraphy @relation("QuestionAnswers", fields: [question_id], references: [id], onDelete: Cascade)
+
+  @@map("answer_theraphies")
+}
