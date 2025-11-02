@@ -12,21 +12,19 @@ export const getAllHistory = async (
 ): Promise<void> => {
   try {
     const userId = req.user.id;
+    const page = Number(req.query.page) || 1;
 
-    const paginate = req.query.page ? Number(req.query.page) : 1;
-
-    const { data, page, total, totalPages } = await getAllHistoryService(
-      userId,
-      paginate,
-    );
-
-    return sendSuccess(res, 200, 'History fetched successfully', {
+    const {
       data,
-      pagination: {
-        page,
-        total,
-        totalPages,
-      },
+      page: currentPage,
+      total,
+      totalPages,
+    } = await getAllHistoryService(userId, page);
+
+    return sendSuccess(res, 200, 'History fetched successfully', data, {
+      page: currentPage,
+      total,
+      totalPages,
     });
   } catch (error) {
     next(error);

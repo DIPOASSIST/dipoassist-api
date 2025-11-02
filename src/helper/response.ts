@@ -1,10 +1,17 @@
 import { Response } from 'express';
 
+interface PaginationMeta {
+  page: number;
+  total: number;
+  totalPages: number;
+}
+
 export const sendSuccess = (
   res: Response,
   statusCode: number,
   message: string,
   data: unknown = null,
+  pagination: PaginationMeta | null = null,
 ): void => {
   res.status(statusCode).json({
     meta: {
@@ -13,6 +20,7 @@ export const sendSuccess = (
       message,
     },
     data,
+    ...(pagination && { pagination }),
   });
 };
 
