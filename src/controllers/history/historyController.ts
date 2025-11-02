@@ -13,7 +13,9 @@ export const getAllHistory = async (
   try {
     const userId = req.user.id;
 
-    const history = await getAllHistoryService(userId);
+    const page = req.query.page ? Number(req.query.page) : 1;
+
+    const history = await getAllHistoryService(userId, page);
 
     return sendSuccess(res, 200, 'History fetched successfully', history);
   } catch (error) {
