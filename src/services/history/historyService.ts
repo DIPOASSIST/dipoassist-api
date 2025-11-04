@@ -1,21 +1,30 @@
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export const getAllHistoryService = async (userId: string, page = 1) => {
+export const getAllHistoryService = async (
+  userId: string,
+  page = 1,
+  label?: string,
+) => {
   try {
     const limit = 10;
     const skip = (page - 1) * limit;
 
+    const whereClause: Prisma.HistoryWhereInput = {
+      user_id: userId,
+      ...(label ? { predicted_label: { contains: label.toLowerCase() } } : {}),
+    };
+
     const [data, total] = await Promise.all([
       prisma.history.findMany({
-        where: { user_id: userId },
+        where: whereClause,
         skip,
         take: limit,
         orderBy: { created_at: 'desc' },
       }),
       prisma.history.count({
-        where: { user_id: userId },
+        where: whereClause,
       }),
     ]);
 
