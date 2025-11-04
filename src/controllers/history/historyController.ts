@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import {
+  getAllHistoryNoPaginationService,
   getAllHistoryService,
   getDetailHistoryService,
 } from '../../services/history/historyService';
@@ -73,6 +74,30 @@ export const getAllHistoryByUser = async (
       total,
       totalPages,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAllHistoryNoPagination = async (
+  req: Request,
+  res: Response,
+  next: Function,
+): Promise<void> => {
+  try {
+    const label = req.query.label as string | undefined;
+
+    const createdAt: { exact?: string; from?: string; to?: string } = {};
+    if (req.query.exact) createdAt.exact = req.query.exact as string;
+    if (req.query.from) createdAt.from = req.query.from as string;
+    if (req.query.to) createdAt.to = req.query.to as string;
+
+    const { data } = await getAllHistoryNoPaginationService({
+      label,
+      createdAt: Object.keys(createdAt).length ? createdAt : undefined,
+    });
+
+    return sendSuccess(res, 200, 'History fetched successfully', data);
   } catch (error) {
     next(error);
   }
