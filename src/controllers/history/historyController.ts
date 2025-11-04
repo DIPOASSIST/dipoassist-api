@@ -3,6 +3,7 @@ import {
   getAllHistoryNoPaginationService,
   getAllHistoryService,
   getDetailHistoryService,
+  getSummaryHistoryService,
 } from '../../services/history/historyService';
 import { sendSuccess } from '../../helper/response';
 
@@ -98,6 +99,25 @@ export const getAllHistoryNoPagination = async (
     });
 
     return sendSuccess(res, 200, 'History fetched successfully', data);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getSummaryHistory = async (
+  req: Request,
+  res: Response,
+  next: Function,
+): Promise<void> => {
+  try {
+    const result = await getSummaryHistoryService();
+
+    return sendSuccess(
+      res,
+      200,
+      'History summary fetched successfully',
+      result,
+    );
   } catch (error) {
     next(error);
   }

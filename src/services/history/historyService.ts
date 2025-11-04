@@ -93,3 +93,27 @@ export const getAllHistoryNoPaginationService = async ({
     throw new Error('Failed to fetch history');
   }
 };
+
+export const getSummaryHistoryService = async () => {
+  try {
+    const summary = await prisma.history.groupBy({
+      by: ['predicted_label'],
+      _count: {
+        predicted_label: true,
+      },
+      orderBy: {
+        _count: {
+          predicted_label: 'desc',
+        },
+      },
+    });
+
+    return summary.map((item) => ({
+      predicted_label: item.predicted_label,
+      count: item._count.predicted_label,
+    }));
+  } catch (error) {
+    console.error('Error fetching summary history:', error);
+    throw new Error('Failed to fetch summary history');
+  }
+};
