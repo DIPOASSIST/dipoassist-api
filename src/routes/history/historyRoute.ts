@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   getAllHistory,
   getAllHistoryByUser,
+  getAllHistoryFilter,
   getAllHistoryNoPagination,
   getDetailHistory,
   getSummaryHistory,
@@ -16,6 +17,7 @@ const router = Router();
 router.use(authMiddleware);
 router.get('/', getAllHistory);
 router.get('/all', getAllHistoryNoPagination);
+router.get('/filter', adminMiddleware, getAllHistoryFilter);
 router.get('/summary', adminMiddleware, getSummaryHistory);
 router.get('/user/:userId', getAllHistoryByUser);
 router.get('/:id', getDetailHistory);
