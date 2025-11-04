@@ -59,13 +59,14 @@ export const getAllHistoryByUser = async (
   try {
     const userId = req.params.userId;
     const page = Number(req.query.page) || 1;
+    const label = req.query.label as string | undefined;
 
     const {
       data,
       page: currentPage,
       total,
       totalPages,
-    } = await getAllHistoryService(userId, page);
+    } = await getAllHistoryService(userId, page, label);
 
     return sendSuccess(res, 200, 'History fetched successfully', data, {
       page: currentPage,
