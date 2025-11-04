@@ -58,8 +58,20 @@ export const getAllHistoryByUser = async (
 ): Promise<void> => {
   try {
     const userId = req.params.userId;
-    const history = await getAllHistoryService(userId);
-    return sendSuccess(res, 200, 'History fetched successfully', history);
+    const page = Number(req.query.page) || 1;
+
+    const {
+      data,
+      page: currentPage,
+      total,
+      totalPages,
+    } = await getAllHistoryService(userId, page);
+
+    return sendSuccess(res, 200, 'History fetched successfully', data, {
+      page: currentPage,
+      total,
+      totalPages,
+    });
   } catch (error) {
     next(error);
   }
