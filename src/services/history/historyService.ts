@@ -117,3 +117,61 @@ export const getSummaryHistoryService = async () => {
     throw new Error('Failed to fetch summary history');
   }
 };
+
+export const getAllHistoryWithFilterService = async ({
+  page = 1,
+  label,
+  createdAt,
+}: GetAllHistoryFilter & { page?: number }) => {
+  try {
+    const limit = 10;
+    const skip = (page - 1) * limit;
+
+    const whereClause: Prisma.HistoryWhereInput = {
+      ...(label ? { predicted_label: { contains: label.toLowerCase() } } : {}),
+    };
+
+    if (createdAt) {
+      if (createdAt.exact) {
+        const date = new Date(createdAt.exact);
+        const nextDate = new Date(date);
+        nextDate.setDate(nextDate.getDate() + 1);
+
+        whereClause.created_at = {
+          gte: date,
+          lt: nextDate,
+        };
+      } else {
+        whereClause.created_at = {};
+        if (createdAt.from) {
+          whereClause.created_at.gte = new Date(createdAt.from);
+        }
+        if (createdAt.to) {
+          whereClause.created_at.lte = new Date(createdAt.to);
+        }
+      }
+    }
+
+    const [data, total] = await Promise.all([
+      prisma.history.findMany({
+        where: whereClause,
+        skip,
+        take: limit,
+        orderBy: { created_at: 'desc' },
+      }),
+      prisma.history.count({
+        where: whereClause,
+      }),
+    ]);
+
+    return {
+      data,
+      page,
+      total,
+      totalPages: Math.ceil(total / limit),
+    };
+  } catch (error) {
+    console.error('Error fetching history:', error);
+    throw new Error('Failed to fetch history');
+  }
+};
