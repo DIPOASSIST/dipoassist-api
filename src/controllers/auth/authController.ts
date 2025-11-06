@@ -8,10 +8,17 @@ import {
   getUserByEmailService,
   getUserByIdService,
   registerUserService,
+  requestResetPasswordService,
+  resetPasswordService,
+  verifyResetTokenService,
 } from '../../services/auth/authService';
 import { loginSchema } from '../../validator/auth/loginValidator';
 import { sendError, sendSuccess } from '../../helper/response';
 import { changePasswordSchema } from '../../validator/auth/changePasswordValidator';
+import {
+  confirmResetPasswordSchema,
+  requestResetPasswordSchema,
+} from '../../validator/auth/resetPasswordValidator';
 
 export const withoutPasswordHandler = (user: User) => {
   const { password, ...userWithoutPassword } = user;
@@ -183,6 +190,65 @@ export const changePassword = async (
     await changePasswordUserService(userid, parsed);
 
     return sendSuccess(res, 200, 'Password changed successfully');
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const requestResetPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const { email } = requestResetPasswordSchema.parse(req.body);
+
+    const result = await requestResetPasswordService(email);
+
+    return sendSuccess(
+      res,
+      200,
+      'Password reset token sent successfully',
+      result,
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const confirmResetPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const { token, newPassword, email } = confirmResetPasswordSchema.parse(
+      req.body,
+    );
+
+    const result = await resetPasswordService(token, newPassword, email);
+
+    return sendSuccess(res, 200, 'Password reset successfully', result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const verifyToken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const { token } = req.query;
+
+    if (typeof token !== 'string') {
+      return sendError(res, 400, 'Token must be a string');
+    }
+
+    const result = await verifyResetTokenService(token);
+
+    return sendSuccess(res, 200, 'Token is valid', result);
   } catch (error) {
     next(error);
   }
