@@ -213,3 +213,14 @@ model AnswerTheraphy{
 
   @@map("answer_theraphies")
 }
+
+model PasswordResetToken{
+  id String @id @default(cuid())
+  email String
+  token String @unique
+  expired_at DateTime
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("password_reset_tokens")
+}

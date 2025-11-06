@@ -1,10 +1,13 @@
 import { Router } from 'express';
 import {
   changePassword,
+  confirmResetPassword,
   getAuth,
   loginUser,
   loginUserFromWeb,
   registerUser,
+  requestResetPassword,
+  verifyToken,
 } from '../../controllers/auth/authController';
 import { authMiddleware } from '../../middlewares/authMiddleware';
 import { updateAccount } from '../../controllers/user/userController';
@@ -23,5 +26,8 @@ router.put(
   upload.single('image_url'),
   updateAccount,
 );
+router.post('/reset', confirmResetPassword);
+router.post('/reset/request', requestResetPassword);
+router.get('/reset/verify', verifyToken);
 
 export default router;
