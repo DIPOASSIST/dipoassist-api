@@ -7,7 +7,7 @@ import {
   loginUserFromWeb,
   registerUser,
   requestResetPassword,
-  verifyToken,
+  verifyOtp,
 } from '../../controllers/auth/authController';
 import { authMiddleware } from '../../middlewares/authMiddleware';
 import { updateAccount } from '../../controllers/user/userController';
@@ -28,6 +28,6 @@ router.put(
 );
 router.post('/reset', confirmResetPassword);
 router.post('/reset/request', requestResetPassword);
-router.get('/reset/verify', verifyToken);
+router.post('/reset/verify', verifyOtp);
 
 export default router;

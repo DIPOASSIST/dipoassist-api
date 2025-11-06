@@ -122,13 +122,15 @@ export const requestResetPasswordService = async (email: string) => {
       throw new Error('User not found');
     }
 
-    const token = uuidv4();
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiredAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
+
+    await prisma.passwordResetToken.deleteMany({ where: { email } });
 
     await prisma.passwordResetToken.create({
       data: {
         email,
-        token,
+        token: otp,
         expired_at: expiredAt,
       },
     });
@@ -143,18 +145,16 @@ export const requestResetPasswordService = async (email: string) => {
       },
     });
 
-    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}&email=${email}`;
-
     await transporter.sendMail({
       from: `"Support" <${process.env.SMTP_USER}>`,
       to: email,
       subject: 'Reset Password Akun Anda',
       html: `
-      <p>Halo ${user.name},</p>
-      <p>Klik tautan berikut untuk mengatur ulang password Anda:</p>
-      <a href="${resetLink}">${resetLink}</a>
-      <p>Link ini berlaku selama 15 menit.</p>
-    `,
+        <p>Halo ${user.name},</p>
+        <p>Kode OTP untuk reset password Anda adalah:</p>
+        <h2 style="font-size: 28px; letter-spacing: 4px;">${otp}</h2>
+        <p>OTP ini berlaku selama 10 menit.</p>
+      `,
     });
   } catch (error) {
     if (error instanceof Error) {
@@ -164,55 +164,50 @@ export const requestResetPasswordService = async (email: string) => {
   }
 };
 
+export const verifyResetTokenService = async (otp: string, email: string) => {
+  try {
+    const result = await prisma.passwordResetToken.findFirst({
+      where: { token: otp, email },
+    });
+
+    if (!result) throw new Error('OTP is invalid');
+    if (result.expired_at < new Date()) throw new Error('OTP has expired');
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error('Error verifying OTP: ' + error.message);
+    }
+    throw new Error('Unknown error verifying OTP');
+  }
+};
+
 export const resetPasswordService = async (
-  token: string,
+  otp: string,
   newPassword: string,
   email: string,
 ) => {
   try {
-    const record = await prisma.passwordResetToken.findUnique({
-      where: { token },
+    const record = await prisma.passwordResetToken.findFirst({
+      where: { token: otp, email },
     });
 
-    if (!record) throw new Error('Token tidak valid');
-    if (record.expired_at < new Date())
-      throw new Error('Token sudah kadaluarsa');
-    if (record.email !== email)
-      throw new Error('Token tidak sesuai dengan email');
+    if (!record) throw new Error('OTP is invalid');
+    if (record.expired_at < new Date()) throw new Error('OTP has expired');
 
-    const user = await prisma.user.findUnique({
-      where: { email: email },
-    });
-    if (!user) throw new Error('User tidak ditemukan');
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) throw new Error('User not found');
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     await prisma.user.update({
-      where: { email: email },
+      where: { email },
       data: { password: hashedPassword },
     });
 
-    await prisma.passwordResetToken.delete({ where: { token } });
+    await prisma.passwordResetToken.deleteMany({ where: { email } });
   } catch (error) {
     if (error instanceof Error) {
       throw new Error('Error resetting password: ' + error.message);
     }
     throw new Error('Unknown error resetting password');
-  }
-};
-
-export const verifyResetTokenService = async (token: string) => {
-  try {
-    const result = await prisma.passwordResetToken.findUnique({
-      where: { token },
-    });
-
-    if (!result) throw new Error('Token is invalid');
-    if (result.expired_at < new Date()) throw new Error('Token has expired');
-  } catch (error) {
-    if (error instanceof Error) {
-      throw new Error('Error verifying reset token: ' + error.message);
-    }
-    throw new Error('Unknown error verifying reset token');
   }
 };

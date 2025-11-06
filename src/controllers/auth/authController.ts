@@ -201,16 +201,23 @@ export const requestResetPassword = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const { email } = requestResetPasswordSchema.parse(req.body);
-
+    const { email } = req.body;
     const result = await requestResetPasswordService(email);
+    return sendSuccess(res, 200, 'OTP sent successfully', result);
+  } catch (error) {
+    next(error);
+  }
+};
 
-    return sendSuccess(
-      res,
-      200,
-      'Password reset token sent successfully',
-      result,
-    );
+export const verifyOtp = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const { otp, email } = req.body;
+    const result = await verifyResetTokenService(otp, email);
+    return sendSuccess(res, 200, 'OTP verified successfully', result);
   } catch (error) {
     next(error);
   }
@@ -222,33 +229,9 @@ export const confirmResetPassword = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const { token, newPassword, email } = confirmResetPasswordSchema.parse(
-      req.body,
-    );
-
-    const result = await resetPasswordService(token, newPassword, email);
-
+    const { otp, newPassword, email } = req.body;
+    const result = await resetPasswordService(otp, newPassword, email);
     return sendSuccess(res, 200, 'Password reset successfully', result);
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const verifyToken = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> => {
-  try {
-    const { token } = req.query;
-
-    if (typeof token !== 'string') {
-      return sendError(res, 400, 'Token must be a string');
-    }
-
-    const result = await verifyResetTokenService(token);
-
-    return sendSuccess(res, 200, 'Token is valid', result);
   } catch (error) {
     next(error);
   }

@@ -5,7 +5,7 @@ export const requestResetPasswordSchema = z.object({
 });
 
 export const confirmResetPasswordSchema = z.object({
-  token: z.string().min(1, { message: 'Token is required' }),
+  otp: z.string().min(1, { message: 'OTP is required' }),
   newPassword: z
     .string()
     .min(6, { message: 'Password must be at least 6 characters long' }),
