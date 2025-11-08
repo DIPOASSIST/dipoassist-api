@@ -32,6 +32,16 @@ export const getAllReportsByUserService = async (userId: string) => {
       where: {
         user_id: userId,
       },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            phone_number: true,
+            email: true,
+          },
+        },
+      },
     });
     return result;
   } catch (error) {
