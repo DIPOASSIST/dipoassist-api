@@ -39,6 +39,21 @@ export const getAllReportByUser = async (
   }
 };
 
+export const getReportByUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const userId = req.params.userId;
+    const data = await getAllReportsByUserService(userId);
+
+    return sendSuccess(res, 200, 'User reports fetched successfully', data);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getDetailReport = async (
   req: Request,
   res: Response,
