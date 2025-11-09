@@ -26,7 +26,9 @@ export const getLatencyByDevice = async (
 ): Promise<void> => {
   try {
     const deviceId = req.params.deviceId;
-    const data = await getLatencyByDeviceService(deviceId);
+    const range = (req.query.range as 'week' | 'month' | 'all') || 'week';
+
+    const data = await getLatencyByDeviceService(deviceId, range);
 
     return sendSuccess(res, 200, 'Latency logs fetched successfully', data);
   } catch (error) {
