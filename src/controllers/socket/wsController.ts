@@ -39,11 +39,10 @@ export const initWebSocket = (server: HTTPServer) => {
         (ws as any).type = 'device';
         (ws as any).deviceId = device.id;
         (ws as any).userId = device.user_id;
-        (ws as any).token = token;
 
         await logDeviceEvent(device.id, `✅ Device connected: ${device.name}`);
 
-        broadcastStatus(wss, device.id, token, true);
+        broadcastStatus(wss, device.id, true);
 
         ws.on('message', (message) => {
           logDeviceEvent(
@@ -64,7 +63,7 @@ export const initWebSocket = (server: HTTPServer) => {
             device.id,
             `❌ Device disconnected: ${device.name}`,
           );
-          broadcastStatus(wss, device.id, token, false);
+          broadcastStatus(wss, device.id, false);
         });
 
         return;
@@ -91,21 +90,19 @@ export const initWebSocket = (server: HTTPServer) => {
 function broadcastStatus(
   wss: WebSocket.Server,
   deviceId: string,
-  token: string,
   isOnline: boolean,
 ) {
   const payload = JSON.stringify({
     type: 'device_status',
     deviceId,
-    token,
     isOnline,
   });
 
   wss.clients.forEach((client) => {
-    const c = client as any;
-    if (client.readyState !== WebSocket.OPEN) return;
-
-    if (c.type === 'user' || (c.type === 'device' && c.token === token)) {
+    if (
+      (client as any).type === 'user' &&
+      client.readyState === WebSocket.OPEN
+    ) {
       client.send(payload);
     }
   });

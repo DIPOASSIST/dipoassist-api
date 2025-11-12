@@ -44,14 +44,15 @@ export const handleMessage = async (
       `🤖 ML Prediction: ${result} (${mlLatency} ms)`,
     );
 
-    // broadcast to user clients
     const broadcastStart = Date.now();
     wsServer.clients.forEach((client: any) => {
-      if (
-        client.readyState === WebSocket.OPEN &&
-        client.type === 'user' &&
-        client.userId === device.user_id
-      ) {
+      if (client.readyState !== WebSocket.OPEN) return;
+      const isUserMatch =
+        client.type === 'user' && client.userId === device.user_id;
+      const isDeviceMatch =
+        client.type === 'device' && client.token === device.device_token;
+
+      if (isUserMatch || isDeviceMatch) {
         client.send(
           JSON.stringify({
             deviceId: device.id,
