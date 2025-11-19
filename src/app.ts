@@ -18,7 +18,6 @@ import adminSummaryRoute from './routes/admin/summary/adminSummaryRoute';
 import latencyRoute from './routes/latency/latencyRoute';
 import theraphyRoute from './routes/theraphy/theraphySemanticRoute';
 import questionTheraphyRoute from './routes/theraphy/questionTheraphyRoute';
-import answerRoute from './routes/theraphy/answerTheraphyRoute';
 import { sendError, sendSuccess } from './helper/response';
 
 const app = express();
@@ -56,7 +55,6 @@ app.use('/api/admin', adminSummaryRoute);
 app.use('/api/latency', latencyRoute);
 app.use('/api/theraphy', theraphyRoute);
 app.use('/api/question', questionTheraphyRoute);
-app.use('/api/answer', answerRoute);
 
 // Handle route not found
 app.use((req: Request, res: Response) => {

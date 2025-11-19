@@ -1,9 +1,9 @@
-import { AnswerQuestionTheraphyType } from '../../validator/theraphy/answerQuestionTheraphyValidator';
+import { QuestionTheraphyType } from '../../validator/theraphy/questionTheraphyValidator';
 
-export interface CreateAnswerTheraphyProps extends AnswerQuestionTheraphyType {
+export interface CreateQuestionTheraphyProps extends QuestionTheraphyType {
   answer_image?: Express.Multer.File;
 }
 
-export interface UpdateAnswerTheraphyProps extends AnswerQuestionTheraphyType {
+export interface UpdateQuestionTheraphyProps extends QuestionTheraphyType {
   answer_image?: Express.Multer.File;
 }

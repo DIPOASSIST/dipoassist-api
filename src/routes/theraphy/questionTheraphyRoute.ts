@@ -12,7 +12,7 @@ const router = Router();
 
 router.use(authMiddleware);
 router.get('/:id', getQuestionTheraphy);
-router.post('/', upload.single('answer[answer_image]'), createQuestionTheraphy);
+router.post('/', upload.single('answer_image'), createQuestionTheraphy);
 router.put('/:id', updateQuestionTheraphy);
 router.delete('/:id', deleteQuestionTheraphy);
 
