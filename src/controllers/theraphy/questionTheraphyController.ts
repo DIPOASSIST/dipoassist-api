@@ -42,8 +42,12 @@ export const createQuestionTheraphy = async (
 ) => {
   try {
     const data = req.body;
+    const answer_image = req.file;
 
-    const result = await createQuestionTheraphyService(data);
+    const result = await createQuestionTheraphyService({
+      ...data,
+      answer_image,
+    });
 
     return sendSuccess(res, 201, 'Question created successfully', result);
   } catch (error) {
