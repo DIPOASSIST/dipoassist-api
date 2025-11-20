@@ -50,13 +50,11 @@ export const getDetailQuestionTheraphy = async (
       return sendError(res, 404, 'Therapy semantic not found');
     }
 
-    const question = await getQuestionTheraphyService(id);
-
     return sendSuccess(
       res,
       200,
       'Questions detail for therapy fetched successfully',
-      question,
+      data,
     );
   } catch (error) {
     next(error);
