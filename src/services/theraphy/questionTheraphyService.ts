@@ -34,6 +34,21 @@ export const getQuestionTheraphyService = async (theraphyId: string) => {
   }
 };
 
+export const getQuestionTherapyByIdService = async (id: string) => {
+  try {
+    const result = await prisma.questionTheraphy.findUnique({
+      where: { id },
+    });
+
+    return result;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error('Error fetching therapy semantic: ' + error.message);
+    }
+    throw new Error('Unknown error fetching therapy semantic');
+  }
+};
+
 export const createQuestionTheraphyService = async (
   data: CreateQuestionTheraphyProps,
 ) => {
