@@ -5,6 +5,7 @@ import {
   createQuestionTheraphyService,
   deleteQuestionTheraphyService,
   getQuestionTheraphyService,
+  getQuestionTherapyByIdService,
   updateQuestionTheraphyService,
 } from '../../services/theraphy/questionTheraphyService';
 
@@ -28,6 +29,33 @@ export const getQuestionTheraphy = async (
       res,
       200,
       'Questions for therapy fetched successfully',
+      question,
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getDetailQuestionTheraphy = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const id = req.params.id;
+
+    const data = await getQuestionTherapyByIdService(id);
+
+    if (!data) {
+      return sendError(res, 404, 'Therapy semantic not found');
+    }
+
+    const question = await getQuestionTheraphyService(id);
+
+    return sendSuccess(
+      res,
+      200,
+      'Questions detail for therapy fetched successfully',
       question,
     );
   } catch (error) {
@@ -91,7 +119,7 @@ export const deleteQuestionTheraphy = async (
   try {
     const id = req.params.id;
 
-    const theraphy = await getTheraphySemanticByIdService(id);
+    const theraphy = await getQuestionTherapyByIdService(id);
 
     if (!theraphy) {
       return sendError(res, 404, 'Therapy semantic not found');
