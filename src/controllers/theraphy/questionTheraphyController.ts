@@ -92,7 +92,7 @@ export const updateQuestionTheraphy = async (
 
     const answer_image = req.file;
 
-    const theraphy = await getTheraphySemanticByIdService(id);
+    const theraphy = await getQuestionTherapyByIdService(id);
 
     if (!theraphy) {
       return sendError(res, 404, 'Therapy semantic not found');
