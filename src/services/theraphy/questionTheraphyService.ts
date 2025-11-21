@@ -2,7 +2,10 @@ import { PrismaClient } from '@prisma/client';
 import { QuestionTheraphyType } from '../../validator/theraphy/questionTheraphyValidator';
 import cloudinary from '../../lib/cloudinary';
 import { v4 as uuidv4 } from 'uuid';
-import { CreateQuestionTheraphyProps } from '../../types/theraphy/answerTheraphy';
+import {
+  CreateQuestionTheraphyProps,
+  UpdateQuestionTheraphyProps,
+} from '../../types/theraphy/answerTheraphy';
 
 const prisma = new PrismaClient();
 
@@ -38,6 +41,17 @@ export const getQuestionTherapyByIdService = async (id: string) => {
   try {
     const result = await prisma.questionTheraphy.findUnique({
       where: { id },
+      select: {
+        id: true,
+        question_text: true,
+        answers: {
+          select: {
+            id: true,
+            answer_text: true,
+            answer_image: true,
+          },
+        },
+      },
     });
 
     return result;
@@ -101,14 +115,44 @@ export const createQuestionTheraphyService = async (
 
 export const updateQuestionTheraphyService = async (
   id: string,
-  data: QuestionTheraphyType,
+  data: UpdateQuestionTheraphyProps,
 ) => {
   try {
+    const { answer_image, theraphy_id, question_text, answer_text } = data;
+
     const result = await prisma.questionTheraphy.update({
       where: { id },
       data: {
-        theraphy_id: data.theraphy_id,
-        question_text: data.question_text,
+        theraphy_id: theraphy_id,
+        question_text: question_text,
+      },
+    });
+
+    let imageUrl: string | undefined;
+
+    if (answer_image && answer_image.buffer) {
+      imageUrl = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            folder: 'answer_images',
+            public_id: uuidv4(),
+            resource_type: 'image',
+          },
+          (error, result) => {
+            if (error || !result) return reject(error);
+            resolve(result.secure_url);
+          },
+        );
+        stream.end(answer_image.buffer);
+      });
+    }
+
+    await prisma.answerTheraphy.update({
+      where: { question_id: result.id },
+      data: {
+        question_id: result.id,
+        answer_text: answer_text,
+        answer_image: imageUrl,
       },
     });
 
