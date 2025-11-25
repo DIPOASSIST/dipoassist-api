@@ -11,7 +11,7 @@ export const getAllPhrasesService = async (userId: string) => {
       include: {
         urgencies: {
           where: { user_id: userId },
-          select: { is_urgent: true },
+          select: { id: true, is_urgent: true },
         },
       },
     });
@@ -22,6 +22,7 @@ export const getAllPhrasesService = async (userId: string) => {
       created_at: p.created_at,
       updated_at: p.updated_at,
       is_urgent: p.urgencies[0]?.is_urgent ?? null,
+      urgency_id: p.urgencies[0]?.id ?? null,
     }));
   } catch (error) {
     if (error instanceof Error) {
