@@ -45,8 +45,12 @@ export const getAllLatencyService = async ({
 export const getLatencyByDeviceService = async (
   deviceId: string,
   range: 'week' | 'month' | 'all' = 'week',
+  page = 1,
 ) => {
   try {
+    const limit = 10;
+    const skip = (page - 1) * limit;
+
     const now = new Date();
     let startDate: Date | undefined;
 
@@ -60,31 +64,44 @@ export const getLatencyByDeviceService = async (
 
     const whereClause: Prisma.LatencyLogWhereInput = {
       device_id: deviceId,
+      ...(startDate
+        ? {
+            created_at: {
+              gte: startDate,
+              lte: now,
+            },
+          }
+        : {}),
     };
 
-    if (startDate) {
-      whereClause.created_at = {
-        gte: startDate,
-        lte: now,
-      };
-    }
-
-    const result = await prisma.latencyLog.findMany({
-      where: whereClause,
-      include: {
-        device: {
-          select: {
-            id: true,
-            name: true,
+    const [data, total] = await Promise.all([
+      prisma.latencyLog.findMany({
+        where: whereClause,
+        skip,
+        take: limit,
+        include: {
+          device: {
+            select: {
+              id: true,
+              name: true,
+            },
           },
         },
-      },
-      orderBy: {
-        created_at: 'desc',
-      },
-    });
+        orderBy: {
+          created_at: 'desc',
+        },
+      }),
+      prisma.latencyLog.count({
+        where: whereClause,
+      }),
+    ]);
 
-    return result;
+    return {
+      data,
+      page,
+      total,
+      totalPages: Math.ceil(total / limit),
+    };
   } catch (error) {
     if (error instanceof Error) {
       throw new Error('Error fetching latencies by device: ' + error.message);
