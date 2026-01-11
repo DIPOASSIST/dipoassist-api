@@ -8,7 +8,7 @@ export const getAllLatencyService = async ({
   page?: number;
 } = {}) => {
   try {
-    const limit = 10;
+    const limit = 40;
     const skip = (page - 1) * limit;
 
     const [data, total] = await Promise.all([
@@ -48,7 +48,7 @@ export const getLatencyByDeviceService = async (
   page = 1,
 ) => {
   try {
-    const limit = 10;
+    const limit = 40;
     const skip = (page - 1) * limit;
 
     const now = new Date();
