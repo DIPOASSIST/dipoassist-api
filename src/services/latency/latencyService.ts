@@ -2,19 +2,38 @@ import { Prisma, PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export const getAllLatencyService = async () => {
+export const getAllLatencyService = async ({
+  page = 1,
+}: {
+  page?: number;
+} = {}) => {
   try {
-    const result = await prisma.latencyLog.findMany({
-      include: {
-        device: {
-          select: {
-            id: true,
-            name: true,
+    const limit = 10;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      prisma.latencyLog.findMany({
+        skip,
+        take: limit,
+        orderBy: { created_at: 'desc' },
+        include: {
+          device: {
+            select: {
+              id: true,
+              name: true,
+            },
           },
         },
-      },
-    });
-    return result;
+      }),
+      prisma.latencyLog.count(),
+    ]);
+
+    return {
+      data,
+      page,
+      total,
+      totalPages: Math.ceil(total / limit),
+    };
   } catch (error) {
     if (error instanceof Error) {
       throw new Error('Error fetching latencies: ' + error.message);
