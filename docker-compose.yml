@@ -3,10 +3,24 @@ name: dipoassist
 
 services:
   app:
-    image: brilliahib/dipoassist-api:latest
-    container_name: dipoassist-api
+    image: dipoassist-api:mqtt-integration
+    container_name: dipoassist-mqtt-integration
     restart: always
     env_file: .env
     ports:
       - '9000:9000'
     command: sh -c "npx prisma migrate deploy && node dist/server.js"
+    depends_on:
+      - mosquitto
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: dipoassist-mosquitto
+    restart: always
+    ports:
+      - '1883:1883'
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+      - ./mosquitto/passwd:/mosquitto/config/passwd
