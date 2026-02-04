@@ -20,7 +20,10 @@ export const initWebSocket = (server: HTTPServer) => {
         return;
       }
 
+      // device connection
       if (token) {
+        const deviceIdParam = params.get('deviceId');
+
         const device = await prisma.device.findUnique({
           where: { device_token: token },
           include: { patient: true },
@@ -36,13 +39,16 @@ export const initWebSocket = (server: HTTPServer) => {
           data: { is_online: true },
         });
 
+        // attach device info to ws instance
         (ws as any).type = 'device';
         (ws as any).deviceId = device.id;
         (ws as any).userId = device.user_id;
         (ws as any).token = token;
+        (ws as any).virtualDeviceId = deviceIdParam
+          ? String(deviceIdParam)
+          : device.id;
 
         await logDeviceEvent(device.id, `✅ Device connected: ${device.name}`);
-
         broadcastStatus(wss, device.id, token, true);
 
         ws.on('message', (message) => {
@@ -50,7 +56,8 @@ export const initWebSocket = (server: HTTPServer) => {
             device.id,
             `📩 Message received: ${message.toString().slice(0, 100)}`,
           );
-          handleMessage(wss, message, { device });
+
+          handleMessage(wss, ws, message, { device, req });
         });
 
         ws.on('close', async () => {
@@ -70,6 +77,7 @@ export const initWebSocket = (server: HTTPServer) => {
         return;
       }
 
+      // user connection
       if (userId) {
         (ws as any).type = 'user';
         (ws as any).userId = userId;
@@ -88,6 +96,7 @@ export const initWebSocket = (server: HTTPServer) => {
   return wss;
 };
 
+// broadcast device status to relevant clients
 function broadcastStatus(
   wss: WebSocket.Server,
   deviceId: string,
