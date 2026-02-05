@@ -1,4 +1,5 @@
 import WebSocket from 'ws';
+import { userClients } from '../../controllers/socket/wsController';
 
 interface FeatureData {
   features: any;
@@ -6,41 +7,39 @@ interface FeatureData {
   seq?: number;
 }
 
-export const handleMessage = async (
-  wsServer: WebSocket.Server,
+export const handleMessage = (
   senderWs: WebSocket,
   message: WebSocket.Data,
-  context: { device: any; req: any },
+  device: any,
 ) => {
+  let data: FeatureData;
+
   try {
-    const data: FeatureData = JSON.parse(message.toString());
-    if (typeof data.ts !== 'number') return;
+    data = JSON.parse(message.toString());
+  } catch {
+    return;
+  }
 
-    const sender = senderWs as any;
-    const virtualDeviceId = String(sender.virtualDeviceId ?? context.device.id);
+  if (typeof data.ts !== 'number') return;
 
-    const payload = JSON.stringify({
-      deviceId: virtualDeviceId,
-      features: data.features,
-      ts: data.ts,
-      serverTs: Date.now(),
-      seq: data.seq,
-    });
+  const payload = JSON.stringify({
+    deviceId: device.id,
+    features: data.features,
+    ts: data.ts,
+    serverTs: Date.now(),
+    seq: data.seq,
+  });
 
-    if (senderWs.readyState === WebSocket.OPEN) {
-      senderWs.send(payload);
+  if (senderWs.readyState === WebSocket.OPEN) {
+    senderWs.send(payload);
+  }
+
+  const userSockets = userClients.get(device.user_id);
+  if (!userSockets) return;
+
+  for (const ws of userSockets) {
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.send(payload);
     }
-
-    wsServer.clients.forEach((client) => {
-      const c = client as any;
-      if (client === senderWs) return;
-      if (client.readyState !== WebSocket.OPEN) return;
-
-      const isUserMatch =
-        c.type === 'user' && c.userId === context.device.user_id;
-      if (isUserMatch) client.send(payload);
-    });
-  } catch (error: any) {
-    console.error('❌ Error processing message:', error.message);
   }
 };

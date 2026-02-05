@@ -1,10 +1,12 @@
 import { Server as HTTPServer } from 'http';
 import WebSocket from 'ws';
-import { handleMessage } from '../../services/socket/wsService';
 import { PrismaClient } from '@prisma/client';
-import { logDeviceEvent } from '../../utils/logger';
+import { handleMessage } from '../../services/socket/wsService';
 
 const prisma = new PrismaClient();
+
+export const userClients = new Map<string, Set<WebSocket>>();
+export const deviceClients = new Map<string, WebSocket>();
 
 export const initWebSocket = (server: HTTPServer) => {
   const wss = new WebSocket.Server({ server });
@@ -16,17 +18,15 @@ export const initWebSocket = (server: HTTPServer) => {
       const userId = params.get('userId');
 
       if (!token && !userId) {
-        ws.close(4001, 'Missing authentication token or userId');
+        ws.close(4001, 'Missing authentication');
         return;
       }
 
-      // device connection
+      // DEVICE CONNECTION
       if (token) {
-        const deviceIdParam = params.get('deviceId');
-
         const device = await prisma.device.findUnique({
           where: { device_token: token },
-          include: { patient: true },
+          select: { id: true, user_id: true, name: true },
         });
 
         if (!device) {
@@ -34,88 +34,47 @@ export const initWebSocket = (server: HTTPServer) => {
           return;
         }
 
-        await prisma.device.update({
-          where: { id: device.id },
-          data: { is_online: true },
-        });
-
-        // attach device info to ws instance
         (ws as any).type = 'device';
         (ws as any).deviceId = device.id;
         (ws as any).userId = device.user_id;
-        (ws as any).token = token;
-        (ws as any).virtualDeviceId = deviceIdParam
-          ? String(deviceIdParam)
-          : device.id;
 
-        await logDeviceEvent(device.id, `✅ Device connected: ${device.name}`);
-        broadcastStatus(wss, device.id, token, true);
+        deviceClients.set(device.id, ws);
 
-        ws.on('message', (message) => {
-          logDeviceEvent(
-            device.id,
-            `📩 Message received: ${message.toString().slice(0, 100)}`,
-          );
+        console.log(`✅ Device connected ${device.id}`);
 
-          handleMessage(wss, ws, message, { device, req });
+        ws.on('message', (msg) => {
+          handleMessage(ws, msg, device);
         });
 
-        ws.on('close', async () => {
-          console.log(`🔌 Device disconnected: ${device.name}`);
-          await prisma.device.update({
-            where: { id: device.id },
-            data: { is_online: false },
-          });
-
-          await logDeviceEvent(
-            device.id,
-            `❌ Device disconnected: ${device.name}`,
-          );
-          broadcastStatus(wss, device.id, token, false);
+        ws.on('close', () => {
+          deviceClients.delete(device.id);
+          console.log(`❌ Device disconnected ${device.id}`);
         });
 
         return;
       }
 
-      // user connection
       if (userId) {
         (ws as any).type = 'user';
         (ws as any).userId = userId;
-        console.log(`👤 User connected: ${userId}`);
+
+        if (!userClients.has(userId)) {
+          userClients.set(userId, new Set());
+        }
+        userClients.get(userId)!.add(ws);
+
+        console.log(`👤 User connected ${userId}`);
 
         ws.on('close', () => {
-          console.log(`👋 User disconnected: ${userId}`);
+          userClients.get(userId)?.delete(ws);
+          console.log(`👋 User disconnected ${userId}`);
         });
       }
     } catch (err) {
-      console.error('❌ Error establishing connection:', err);
-      ws.close(1011, 'Internal server error');
+      console.error('❌ WS error:', err);
+      ws.close(1011);
     }
   });
 
   return wss;
 };
-
-// broadcast device status to relevant clients
-function broadcastStatus(
-  wss: WebSocket.Server,
-  deviceId: string,
-  token: string,
-  isOnline: boolean,
-) {
-  const payload = JSON.stringify({
-    type: 'device_status',
-    deviceId,
-    token,
-    isOnline,
-  });
-
-  wss.clients.forEach((client) => {
-    const c = client as any;
-    if (client.readyState !== WebSocket.OPEN) return;
-
-    if (c.type === 'user' || (c.type === 'device' && c.token === token)) {
-      client.send(payload);
-    }
-  });
-}
